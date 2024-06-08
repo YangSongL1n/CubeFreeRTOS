@@ -1,0 +1,11 @@
+/.mxproject
+/.vscode
+/build
+/Drivers
+/Makefile
+/Middlewares
+/openocd.cfg
+/startup_stm32f103xe.s
+/STM32-for-VSCode.config.yaml
+/STM32F103ZETx_FLASH.ld
+/STM32Make.make
