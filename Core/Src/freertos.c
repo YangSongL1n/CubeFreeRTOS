@@ -32,19 +32,6 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-typedef enum{
-	H_AD_STATUS_0	= 1 ,//0V
-	H_AD_STATUS_6 = 2 ,//6V
-	H_AD_STATUS_9 = 3 ,//9V
-	H_AD_STATUS_12 =4 ,//12V
-	H_AD_STATUS_ERR = 5 //未知电压
-} CP_AD_STATUS;
-typedef struct
-{
-  CP_AD_STATUS cp_ad_status;
-	uint16_t  cp_ad_voltage;
-
-}Adc_data;
 
 /* USER CODE END PTD */
 
@@ -176,7 +163,7 @@ void LCDTask(void const * argument)
   /* USER CODE BEGIN LCDTask */
   DWINLCD_Init(USART3);
   DWINLCD_Clear(White);
-	DWINLCD_ShowXChar(1, 1, A64, Black, White, 30, 50, "Num:");
+	DWINLCD_ShowXChar(1, 1, A64, Black, White, 30, 50, "Vol:");
   osEvent event;
   /* Infinite loop */
   for(;;)
@@ -186,7 +173,20 @@ void LCDTask(void const * argument)
 		
 	if(osEventMessage==event.status)
 	{
-	 DWINLCD_ShowXNum(1, 1, 1, 0, A64, Black, White, 1, 3, 125,50, event.value.v);
+   
+	  DWINLCD_ShowXNum(1, 1, 1, 0, A64, Black, White, 1, 3, 125,50,event.value.v);
+    // switch (pData->cp_ad_status)
+    // {
+    // case H_AD_STATUS_0:
+    //   printf("H_AD_STATUS_0\r\n");
+    //   break;
+    // case H_AD_STATUS_9:
+    //   printf("H_AD_STATUS_9\r\n");
+    //   break;
+
+    // default:
+    //   break;
+    // }
 	}
 	else
 	{
@@ -214,19 +214,19 @@ void StartAdc03(void const * argument)
   HAL_ADC_Start(&hadc1);                  //ADC开启转换
   osEvent xReturn;
   uint16_t ADC_V =0;
+
   /* Infinite loop */
   for(;;)
   {
     uint16_t ADC_num = HAL_ADC_GetValue(&hadc1);    //获取ADC端口数据
-  
-    ADC_V = 3300*ADC_num/4096;   
-    xReturn.status=osMessagePut(myQueue01Handle,ADC_V,0);
-			
+    
+    ADC_V = 3300*ADC_num/4096;  
+    xReturn.status=osMessagePut(myQueue01Handle,ADC_V,0);	
 		// if(osOK!=xReturn.status)
 		// {
 		// 	printf("adc send fail\n");
 		// }
-    // osDelay(500);
+ 
   }
   /* USER CODE END StartAdc03 */
 }
