@@ -186,7 +186,7 @@ void LCDTask(void const * argument)
 		
 	if(osEventMessage==event.status)
 	{
-	 DWINLCD_ShowXNum(1, 1, 1, 0, A64, Black, White, 3, 1, 125,50, event.value.v);
+	 DWINLCD_ShowXNum(1, 1, 1, 0, A64, Black, White, 1, 3, 125,50, event.value.v);
 	}
 	else
 	{
