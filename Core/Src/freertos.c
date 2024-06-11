@@ -25,7 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "T5UIC1.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -146,6 +146,9 @@ void StartTask(void *argument)
 void LCDTask(void *argument)
 {
   /* USER CODE BEGIN LCDTask */
+  DWINLCD_Init(USART3);
+  DWINLCD_Clear(White);
+	DWINLCD_ShowXChar(1, 1, A64, Black, White, 30, 50, "Vol:");
   /* Infinite loop */
   for(;;)
   {
