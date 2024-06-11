@@ -32,7 +32,15 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+typedef enum{
+  Sta1=0,
+  Sta2,
+  Sta3
+} My_State;
+typedef struct {
+  uint16_t cp_vol;
+  My_State cp_sta;
+} My_St;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -170,11 +178,15 @@ void LCDTask(void const * argument)
   {
   // DWINLCD_ShowXChar(1, 1, 0x05, Black, White, 30, 210, "hello");
   event=osMessageGet(myQueue01Handle,osWaitForever);
-		
+	My_St *re;	
 	if(osEventMessage==event.status)
-	{
-   
-	  DWINLCD_ShowXNum(1, 1, 1, 0, A64, Black, White, 1, 3, 125,50,event.value.v);
+	{ 
+    re=event.value.p;
+    osThreadSuspendAll();
+    printf("sta:%d\r\n",re->cp_sta);
+    printf("%d\r\n",re->cp_vol);
+    DWINLCD_ShowXNum(1, 1, 1, 0, A64, Black, White, 1, 3, 125,50,re->cp_vol);
+    osThreadResumeAll();
     // switch (pData->cp_ad_status)
     // {
     // case H_AD_STATUS_0:
@@ -219,14 +231,16 @@ void StartAdc03(void const * argument)
   for(;;)
   {
     uint16_t ADC_num = HAL_ADC_GetValue(&hadc1);    //获取ADC端口数据
-    
+    My_St adc_st;
     ADC_V = 3300*ADC_num/4096;  
-    xReturn.status=osMessagePut(myQueue01Handle,ADC_V,0);	
+    adc_st.cp_vol=ADC_V;
+    adc_st.cp_sta=Sta3;
+    xReturn.status=osMessagePut(myQueue01Handle,(uint32_t)&adc_st,0);	
 		// if(osOK!=xReturn.status)
 		// {
 		// 	printf("adc send fail\n");
 		// }
- 
+  
   }
   /* USER CODE END StartAdc03 */
 }
