@@ -1,494 +1,494 @@
 #include "T5UIC1.h"
-//³õÊ¼»¯lcd
+//åˆå§‹åŒ–lcd
 
 int DwinSend_Buff_Size=5;
 uint8_t *DWINSend_Buff;
 __IO  uint16_t Send_p = 0;
 USART_TypeDef* Dwin_UART;
 
-//Ö¡Í·Ö¡Î²³õÊ¼»¯
+//å¸§å¤´å¸§å°¾åˆå§‹åŒ–
 void Data_init()
 {
 	 
    DWINSend_Buff=(uint8_t *)malloc(DwinSend_Buff_Size);
  	
    /***********************************************************/		 
-   DWINSend_Buff[DwinSend_Buff_Size -DwinSend_Buff_Size ]=0xAA;     //Ö¡Í·//
+   DWINSend_Buff[DwinSend_Buff_Size -DwinSend_Buff_Size ]=0xAA;     //å¸§å¤´//
    /***********************************************************/		
 	 
 	 /***********************************************************/	 
-     DWINSend_Buff[DwinSend_Buff_Size -4]=0xCC;                     //Ö¡//
-	 DWINSend_Buff[DwinSend_Buff_Size -3]=0x33;                     //½á//
-	 DWINSend_Buff[DwinSend_Buff_Size -2]=0xC3;                     //Êø//
-	 DWINSend_Buff[DwinSend_Buff_Size -1]=0x3C;                     //·û//
+     DWINSend_Buff[DwinSend_Buff_Size -4]=0xCC;                     //å¸§//
+	 DWINSend_Buff[DwinSend_Buff_Size -3]=0x33;                     //ç»“//
+	 DWINSend_Buff[DwinSend_Buff_Size -2]=0xC3;                     //æŸ//
+	 DWINSend_Buff[DwinSend_Buff_Size -1]=0x3C;                     //ç¬¦//
 	 /***********************************************************/	 
 }
-//µÏÎÄ´®¿ÚÆÁ³õÊ¼»¯
-//´«²Î£º´®¿ÚºÅ
-//Àı×Ó:DWINLCD_Init(USART1);      //µÏÎÄÆÁ²ÉÓÃ´®¿Ú1·¢ËÍ
+//è¿ªæ–‡ä¸²å£å±åˆå§‹åŒ–
+//ä¼ å‚ï¼šä¸²å£å·
+//ä¾‹å­:DWINLCD_Init(USART1);      //è¿ªæ–‡å±é‡‡ç”¨ä¸²å£1å‘é€
 void DWINLCD_Init(USART_TypeDef* USARTx)
 { 
 	 DwinSend_Buff_Size=6; 
-	 Data_init();                                   //¸üĞÂÊı×é     		
+	 Data_init();                                   //æ›´æ–°æ•°ç»„     		
      Dwin_UART=USARTx;
 	
-	 DWINSend_Buff[DwinSend_Buff_Size -5]=0x00;     //ÎÕÊÖÖ¸Áî
+	 DWINSend_Buff[DwinSend_Buff_Size -5]=0x00;     //æ¡æ‰‹æŒ‡ä»¤
 	 
-	 Send_Data(DWINSend_Buff);                      //·¢ËÍÊı¾İ
+	 Send_Data(DWINSend_Buff);                      //å‘é€æ•°æ®
 	
-	/**********ÅĞ¶Ï»Ø¸´ÏûÏ¢£¬È·ÈÏÊÇ·ñÎÕÊÖ³É¹¦************/
+	/**********åˆ¤æ–­å›å¤æ¶ˆæ¯ï¼Œç¡®è®¤æ˜¯å¦æ¡æ‰‹æˆåŠŸ************/
 }  		  
   
-//·¢ËÍÖ¸ÁîÊı¾İ 
+//å‘é€æŒ‡ä»¤æ•°æ® 
 void Send_Data(uint8_t *buff)
 {
 	 uint8_t i=DwinSend_Buff_Size;
 	 Send_p = 0;
 	 while(i--)
 	 {
-		 while((Dwin_UART->SR&0X40)==0);  //Ñ­»··¢ËÍ,Ö±µ½·¢ËÍÍê±Ï
+		 while((Dwin_UART->SR&0X40)==0);  //å¾ªç¯å‘é€,ç›´åˆ°å‘é€å®Œæ¯•
 		 Dwin_UART->DR = (DWINSend_Buff[Send_p++]&(uint16_t)0x01FF);    		 
 	 } 
-	 free(DWINSend_Buff);                 //ÊÍ·ÅÄÚ´æ     
+	 free(DWINSend_Buff);                 //é‡Šæ”¾å†…å­˜     
 }
 
-//µÏÎÄÆÁ±³¹âÁÁ¶Èµ÷½Ú
-//±³¹âÁÁ¶ÈÖµ·¶Î§£º0x00-0xFF
-/*×¢Òâ£º0x00 ±³¹â¹Ø±Õ£¬0xFF ±³¹â×îÁÁ£¬ÆäÖĞ 0x01-0x1F ÉèÖÃÖµ±³¹â¿ÉÄÜ»áÉÁË¸¡£*/
+//è¿ªæ–‡å±èƒŒå…‰äº®åº¦è°ƒèŠ‚
+//èƒŒå…‰äº®åº¦å€¼èŒƒå›´ï¼š0x00-0xFF
+/*æ³¨æ„ï¼š0x00 èƒŒå…‰å…³é—­ï¼Œ0xFF èƒŒå…‰æœ€äº®ï¼Œå…¶ä¸­ 0x01-0x1F è®¾ç½®å€¼èƒŒå…‰å¯èƒ½ä¼šé—ªçƒã€‚*/
 void DWIN_LightSet(uint8_t Light)
 {
 	
-	DwinSend_Buff_Size=7;                         //Ö¸ÁîÊı¾İ³¤¶ÈÎª7£¨Ö¡Í·+Ö¸Áî+Êı¾İ+Ö¡Î²£©
-	Data_init();                                  //ÖØĞÂ¸üĞÂÊı×é
+	DwinSend_Buff_Size=7;                         //æŒ‡ä»¤æ•°æ®é•¿åº¦ä¸º7ï¼ˆå¸§å¤´+æŒ‡ä»¤+æ•°æ®+å¸§å°¾ï¼‰
+	Data_init();                                  //é‡æ–°æ›´æ–°æ•°ç»„
 	
-	DWINSend_Buff[DwinSend_Buff_Size -6]=0x30;    //±³¹âÖ¸Áî
+	DWINSend_Buff[DwinSend_Buff_Size -6]=0x30;    //èƒŒå…‰æŒ‡ä»¤
 	
-	DWINSend_Buff[DwinSend_Buff_Size -5]=Light;   //±³¹âÖµ
+	DWINSend_Buff[DwinSend_Buff_Size -5]=Light;   //èƒŒå…‰å€¼
 	
-	Send_Data(DWINSend_Buff);                     //·¢ËÍÊı¾İ
+	Send_Data(DWINSend_Buff);                     //å‘é€æ•°æ®
 }
 
-//µÏÎÄÆÁÈ«¾ÖÇåÆÁ
+//è¿ªæ–‡å±å…¨å±€æ¸…å±
 //
-void DWINLCD_Clear(uint16_t Color)	 					  //È«¾ÖÇåÆÁ
+void DWINLCD_Clear(uint16_t Color)	 					  //å…¨å±€æ¸…å±
 {
-	DwinSend_Buff_Size=8;                         //Ö¸ÁîÊı¾İ³¤¶ÈÎª8£¨Ö¡Í·+Ö¸Áî+Êı¾İ+Ö¡Î²£©
-	Data_init();                                  //ÖØĞÂ¸üĞÂÊı×é
+	DwinSend_Buff_Size=8;                         //æŒ‡ä»¤æ•°æ®é•¿åº¦ä¸º8ï¼ˆå¸§å¤´+æŒ‡ä»¤+æ•°æ®+å¸§å°¾ï¼‰
+	Data_init();                                  //é‡æ–°æ›´æ–°æ•°ç»„
 	
-	DWINSend_Buff[DwinSend_Buff_Size -7]=0x01;    //ÇåÆÁÖ¸Áî
+	DWINSend_Buff[DwinSend_Buff_Size -7]=0x01;    //æ¸…å±æŒ‡ä»¤
 	
-	DWINSend_Buff[DwinSend_Buff_Size -6]=Color>>8;       //ÇåÆÁÑÕÉ«¸ß8Î»	
-	DWINSend_Buff[DwinSend_Buff_Size -5]=Color&0x00FF;   //ÇåÆÁÑÕÉ«µÍ8Î»
+	DWINSend_Buff[DwinSend_Buff_Size -6]=Color>>8;       //æ¸…å±é¢œè‰²é«˜8ä½	
+	DWINSend_Buff[DwinSend_Buff_Size -5]=Color&0x00FF;   //æ¸…å±é¢œè‰²ä½8ä½
 	
-	Send_Data(DWINSend_Buff);                            //·¢ËÍÊı¾İ
+	Send_Data(DWINSend_Buff);                            //å‘é€æ•°æ®
 //   Delay_ms(10);
   HAL_Delay(10);
 }
 
-//___________________________________»­µã ____________________________________________//
-//Ö¸Áî£ºÖ¡Í·+Ö¸Áî+»­µãÑÕÉ«+»­µãÏñËØ´óĞ¡(Nx,Ny)+»­µãÎ»ÖÃ¡¾(X1,Y1)+(X2,Y2)+.........¡¿+Ö¡Î²
-//ÖÃµã£»´¦ÀíÊ±¼ä=0.4*Nx*Ny*ÖÃµãÊıÄ¿ uS¡£
-//Color£ºÖÃµãÑÕÉ«¡£
-//Nx£ºÊµ¼ÊÏñËØµã X ·½ÏòÏñËØ´óĞ¡£¬0x01-0x0F¡£
-//Ny£ºÊµ¼ÊÏñËØµã Y ·½ÏòÏñËØ´óĞ¡£¬0x01-0x0F¡£
-//£¨Xn£¬Yn£©£ºÖÃµã×ø±êĞòÁĞ¡£
-//¾ÙÀı£ºAA 02 F8 00 04 04 00 08 00 08  CC 33 C3 3C
-/**************»­µãĞ­ÒéÖ¸Áî¿ÉÒÔÒ»´Î»­¶àµã£¨±¾º¯ÊıÖ»»­Ò»¸öÎ»ÖÃµÄÏñËØµã£©********************/
-void DWINLCD_DrawPoint(uint16_t Color,uint8_t Nx,uint8_t Ny,uint16_t X1,uint16_t Y1)			  //»­µã
+//___________________________________ç”»ç‚¹ ____________________________________________//
+//æŒ‡ä»¤ï¼šå¸§å¤´+æŒ‡ä»¤+ç”»ç‚¹é¢œè‰²+ç”»ç‚¹åƒç´ å¤§å°(Nx,Ny)+ç”»ç‚¹ä½ç½®ã€(X1,Y1)+(X2,Y2)+.........ã€‘+å¸§å°¾
+//ç½®ç‚¹ï¼›å¤„ç†æ—¶é—´=0.4*Nx*Ny*ç½®ç‚¹æ•°ç›® uSã€‚
+//Colorï¼šç½®ç‚¹é¢œè‰²ã€‚
+//Nxï¼šå®é™…åƒç´ ç‚¹ X æ–¹å‘åƒç´ å¤§å°ï¼Œ0x01-0x0Fã€‚
+//Nyï¼šå®é™…åƒç´ ç‚¹ Y æ–¹å‘åƒç´ å¤§å°ï¼Œ0x01-0x0Fã€‚
+//ï¼ˆXnï¼ŒYnï¼‰ï¼šç½®ç‚¹åæ ‡åºåˆ—ã€‚
+//ä¸¾ä¾‹ï¼šAA 02 F8 00 04 04 00 08 00 08  CC 33 C3 3C
+/**************ç”»ç‚¹åè®®æŒ‡ä»¤å¯ä»¥ä¸€æ¬¡ç”»å¤šç‚¹ï¼ˆæœ¬å‡½æ•°åªç”»ä¸€ä¸ªä½ç½®çš„åƒç´ ç‚¹ï¼‰********************/
+void DWINLCD_DrawPoint(uint16_t Color,uint8_t Nx,uint8_t Ny,uint16_t X1,uint16_t Y1)			  //ç”»ç‚¹
 {
-	DwinSend_Buff_Size=14;                         //Ö¸ÁîÊı¾İ³¤¶ÈÎª14£¨Ö¡Í·+Ö¸Áî+Êı¾İ+Ö¡Î²£©
-	Data_init();                                   //ÖØĞÂ¸üĞÂÊı×é
+	DwinSend_Buff_Size=14;                         //æŒ‡ä»¤æ•°æ®é•¿åº¦ä¸º14ï¼ˆå¸§å¤´+æŒ‡ä»¤+æ•°æ®+å¸§å°¾ï¼‰
+	Data_init();                                   //é‡æ–°æ›´æ–°æ•°ç»„
 	
-	DWINSend_Buff[DwinSend_Buff_Size -13]=0x02;    //»­µãÖ¸Áî
+	DWINSend_Buff[DwinSend_Buff_Size -13]=0x02;    //ç”»ç‚¹æŒ‡ä»¤
 	
-	DWINSend_Buff[DwinSend_Buff_Size -12]=Color>>8;          //»­µãÑÕÉ«¸ß8Î»	
-	DWINSend_Buff[DwinSend_Buff_Size -11]=Color&0x00FF;      //»­µãÑÕÉ«µÍ8Î»
+	DWINSend_Buff[DwinSend_Buff_Size -12]=Color>>8;          //ç”»ç‚¹é¢œè‰²é«˜8ä½	
+	DWINSend_Buff[DwinSend_Buff_Size -11]=Color&0x00FF;      //ç”»ç‚¹é¢œè‰²ä½8ä½
 	
-	DWINSend_Buff[DwinSend_Buff_Size -10]=Nx;                //Nx£ºÊµ¼ÊÏñËØµã X ·½ÏòÏñËØ´óĞ¡£¬0x01-0x0F
-	DWINSend_Buff[DwinSend_Buff_Size -9]=Ny;                 //Ny£ºÊµ¼ÊÏñËØµã Y ·½ÏòÏñËØ´óĞ¡£¬0x01-0x0F
+	DWINSend_Buff[DwinSend_Buff_Size -10]=Nx;                //Nxï¼šå®é™…åƒç´ ç‚¹ X æ–¹å‘åƒç´ å¤§å°ï¼Œ0x01-0x0F
+	DWINSend_Buff[DwinSend_Buff_Size -9]=Ny;                 //Nyï¼šå®é™…åƒç´ ç‚¹ Y æ–¹å‘åƒç´ å¤§å°ï¼Œ0x01-0x0F
 	
-	DWINSend_Buff[DwinSend_Buff_Size -8]=X1>>8;              //X1ÖÃµãX×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -7]=X1&0xFF;            //X1ÖÃµãX×ø±êµÍ°ËÎ»
+	DWINSend_Buff[DwinSend_Buff_Size -8]=X1>>8;              //X1ç½®ç‚¹Xåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -7]=X1&0xFF;            //X1ç½®ç‚¹Xåæ ‡ä½å…«ä½
 	
-	DWINSend_Buff[DwinSend_Buff_Size -6]=Y1>>8;              //Y1ÖÃµãY×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -5]=Y1&0xFF;            //Y1ÖÃµãY×ø±êµÍ°ËÎ»
+	DWINSend_Buff[DwinSend_Buff_Size -6]=Y1>>8;              //Y1ç½®ç‚¹Yåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -5]=Y1&0xFF;            //Y1ç½®ç‚¹Yåæ ‡ä½å…«ä½
 	
-	Send_Data(DWINSend_Buff);                                //·¢ËÍÊı¾İ
+	Send_Data(DWINSend_Buff);                                //å‘é€æ•°æ®
 }
-//_________________________________»­Ïß________________________________________//
+//_________________________________ç”»çº¿________________________________________//
 
-//Ö¸Áî£ºÖ¡Í·+Ö¸Áî+»­ÏßÑÕÉ«+»­µãÆğµãÎ»ÖÃ(X1,Y1)+»­µãÆğµãÎ»ÖÃ(X2,Y2)+Ö¡Î²
-//Color£º»­ÏßÑÕÉ«
-//ÆğÊ¼×ø±ê£º£¨x1,y1£©
-//ÖÕµã×ø±ê£º£¨x2,y2£©
-void DWINLCD_DrawLine(uint16_t Color,uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)					//»­Ïß
+//æŒ‡ä»¤ï¼šå¸§å¤´+æŒ‡ä»¤+ç”»çº¿é¢œè‰²+ç”»ç‚¹èµ·ç‚¹ä½ç½®(X1,Y1)+ç”»ç‚¹èµ·ç‚¹ä½ç½®(X2,Y2)+å¸§å°¾
+//Colorï¼šç”»çº¿é¢œè‰²
+//èµ·å§‹åæ ‡ï¼šï¼ˆx1,y1ï¼‰
+//ç»ˆç‚¹åæ ‡ï¼šï¼ˆx2,y2ï¼‰
+void DWINLCD_DrawLine(uint16_t Color,uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)					//ç”»çº¿
 {
-	DwinSend_Buff_Size=16;                                    //Ö¸ÁîÊı¾İ³¤¶ÈÎª16£¨Ö¡Í·+Ö¸Áî+Êı¾İ+Ö¡Î²£©
-	Data_init();                                              //ÖØĞÂ¸üĞÂÊı×é
+	DwinSend_Buff_Size=16;                                    //æŒ‡ä»¤æ•°æ®é•¿åº¦ä¸º16ï¼ˆå¸§å¤´+æŒ‡ä»¤+æ•°æ®+å¸§å°¾ï¼‰
+	Data_init();                                              //é‡æ–°æ›´æ–°æ•°ç»„
 	
-	DWINSend_Buff[DwinSend_Buff_Size -15]=0x03;               //»­ÏßÖ¸Áî
+	DWINSend_Buff[DwinSend_Buff_Size -15]=0x03;               //ç”»çº¿æŒ‡ä»¤
 	
-	DWINSend_Buff[DwinSend_Buff_Size -14]=Color>>8;           //»­ÏßÑÕÉ«¸ß8Î»	
-	DWINSend_Buff[DwinSend_Buff_Size -13]=Color&0x00FF;       //»­ÏßÑÕÉ«µÍ8Î»
+	DWINSend_Buff[DwinSend_Buff_Size -14]=Color>>8;           //ç”»çº¿é¢œè‰²é«˜8ä½	
+	DWINSend_Buff[DwinSend_Buff_Size -13]=Color&0x00FF;       //ç”»çº¿é¢œè‰²ä½8ä½
 	
-	DWINSend_Buff[DwinSend_Buff_Size -12]=x1>>8;              //X1×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -11]=x1&0xFF;            //X1×ø±êµÍ°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -10]=y1>>8;              //Y1×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -9]=y1&0xFF;             //Y1×ø±êµÍ°ËÎ»
+	DWINSend_Buff[DwinSend_Buff_Size -12]=x1>>8;              //X1åæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -11]=x1&0xFF;            //X1åæ ‡ä½å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -10]=y1>>8;              //Y1åæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -9]=y1&0xFF;             //Y1åæ ‡ä½å…«ä½
 	
-	DWINSend_Buff[DwinSend_Buff_Size -8]=x2>>8;               //X2×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -7]=x2&0xFF;             //X2×ø±êµÍ°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -6]=y2>>8;               //Y2×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -5]=y2&0xFF;             //Y2×ø±êµÍ°ËÎ»
+	DWINSend_Buff[DwinSend_Buff_Size -8]=x2>>8;               //X2åæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -7]=x2&0xFF;             //X2åæ ‡ä½å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -6]=y2>>8;               //Y2åæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -5]=y2&0xFF;             //Y2åæ ‡ä½å…«ä½
 	
-	Send_Data(DWINSend_Buff);                                 //·¢ËÍÊı¾İ
+	Send_Data(DWINSend_Buff);                                 //å‘é€æ•°æ®
 }
 
-//___________________________________»­¾ØĞÎ¿ò____________________________________________
+//___________________________________ç”»çŸ©å½¢æ¡†____________________________________________
 
-//Ö¸Áî£ºÖ¡Í·+Ö¸Áî+Ä£Ê½+»­ÏßÑÕÉ«+¾ØĞÎ¿ò×óÉÏ½ÇÆğµã×ø±ê(Xs,Ys)+¾ØĞÎ¿òÓÒÏÂ½Ç×ø±ê(Xe,Ye)+Ö¡Î²
-//Ä£Ê½:  (0)0x00 ÏÔÊ¾¾ØĞÎ¿òÑÕÉ«
-//       (1)0x01 ÏÔÊ¾¾ØĞÎÇøÓòÌî³äÑÕÉ«
-//       (2)0x02 XOR ¾ØĞÎÇøÓòÊı¾İ£¬¶àÓÃÓÚ²Ëµ¥Ñ¡ÖĞ/²»Ñ¡ÖĞ×ÅÉ«
-//Color£º¾ØĞÎ¿òÑÕÉ«/¾ØĞÎ¿òÌî³äÑÕÉ«
-//(Xs,Ys)£º¾ØĞÎ¿ò×óÉÏ½ÇÆğµã×ø±ê
-//(Xe,Ye)£º¾ØĞÎ¿òÓÒÏÂ½ÇÖÕµã×ø±ê
-void DWINLCD_DrawRectangle(uint8_t Mode,uint16_t Color,uint16_t Xs, uint16_t Ys, uint16_t Xe, uint16_t Ye)		   				//»­¾ØĞÎ
+//æŒ‡ä»¤ï¼šå¸§å¤´+æŒ‡ä»¤+æ¨¡å¼+ç”»çº¿é¢œè‰²+çŸ©å½¢æ¡†å·¦ä¸Šè§’èµ·ç‚¹åæ ‡(Xs,Ys)+çŸ©å½¢æ¡†å³ä¸‹è§’åæ ‡(Xe,Ye)+å¸§å°¾
+//æ¨¡å¼:  (0)0x00 æ˜¾ç¤ºçŸ©å½¢æ¡†é¢œè‰²
+//       (1)0x01 æ˜¾ç¤ºçŸ©å½¢åŒºåŸŸå¡«å……é¢œè‰²
+//       (2)0x02 XOR çŸ©å½¢åŒºåŸŸæ•°æ®ï¼Œå¤šç”¨äºèœå•é€‰ä¸­/ä¸é€‰ä¸­ç€è‰²
+//Colorï¼šçŸ©å½¢æ¡†é¢œè‰²/çŸ©å½¢æ¡†å¡«å……é¢œè‰²
+//(Xs,Ys)ï¼šçŸ©å½¢æ¡†å·¦ä¸Šè§’èµ·ç‚¹åæ ‡
+//(Xe,Ye)ï¼šçŸ©å½¢æ¡†å³ä¸‹è§’ç»ˆç‚¹åæ ‡
+void DWINLCD_DrawRectangle(uint8_t Mode,uint16_t Color,uint16_t Xs, uint16_t Ys, uint16_t Xe, uint16_t Ye)		   				//ç”»çŸ©å½¢
 {
-	DwinSend_Buff_Size=17;                                    //Ö¸ÁîÊı¾İ³¤¶ÈÎª16£¨Ö¡Í·+Ö¸Áî+Êı¾İ+Ö¡Î²£©
-	Data_init();                                              //ÖØĞÂ¸üĞÂÊı×é
+	DwinSend_Buff_Size=17;                                    //æŒ‡ä»¤æ•°æ®é•¿åº¦ä¸º16ï¼ˆå¸§å¤´+æŒ‡ä»¤+æ•°æ®+å¸§å°¾ï¼‰
+	Data_init();                                              //é‡æ–°æ›´æ–°æ•°ç»„
 	
-	DWINSend_Buff[DwinSend_Buff_Size -16]=0x05;               //»­¾ØĞÎÖ¸Áî
-	DWINSend_Buff[DwinSend_Buff_Size -15]=Mode;               //Ä£Ê½Ñ¡Ôñ
+	DWINSend_Buff[DwinSend_Buff_Size -16]=0x05;               //ç”»çŸ©å½¢æŒ‡ä»¤
+	DWINSend_Buff[DwinSend_Buff_Size -15]=Mode;               //æ¨¡å¼é€‰æ‹©
 	
-	DWINSend_Buff[DwinSend_Buff_Size -14]=Color>>8;           //»­ÏßÑÕÉ«¸ß8Î»	
-	DWINSend_Buff[DwinSend_Buff_Size -13]=Color&0x00FF;       //»­ÏßÑÕÉ«µÍ8Î»
+	DWINSend_Buff[DwinSend_Buff_Size -14]=Color>>8;           //ç”»çº¿é¢œè‰²é«˜8ä½	
+	DWINSend_Buff[DwinSend_Buff_Size -13]=Color&0x00FF;       //ç”»çº¿é¢œè‰²ä½8ä½
 	
-	DWINSend_Buff[DwinSend_Buff_Size -12]=Xs>>8;              //Xs×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -11]=Xs&0xFF;            //Xs×ø±êµÍ°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -10]=Ys>>8;              //Ys×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -9]=Ys&0xFF;             //Ys×ø±êµÍ°ËÎ»
+	DWINSend_Buff[DwinSend_Buff_Size -12]=Xs>>8;              //Xsåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -11]=Xs&0xFF;            //Xsåæ ‡ä½å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -10]=Ys>>8;              //Ysåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -9]=Ys&0xFF;             //Ysåæ ‡ä½å…«ä½
 	
-	DWINSend_Buff[DwinSend_Buff_Size -8]=Xe>>8;               //Xe×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -7]=Xe&0xFF;             //Xe×ø±êµÍ°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -6]=Ye>>8;               //Ye×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -5]=Ye&0xFF;             //Ye×ø±êµÍ°ËÎ»
+	DWINSend_Buff[DwinSend_Buff_Size -8]=Xe>>8;               //Xeåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -7]=Xe&0xFF;             //Xeåæ ‡ä½å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -6]=Ye>>8;               //Yeåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -5]=Ye&0xFF;             //Yeåæ ‡ä½å…«ä½
 	
-	Send_Data(DWINSend_Buff);                                 //·¢ËÍÊı¾İ
+	Send_Data(DWINSend_Buff);                                 //å‘é€æ•°æ®
 }
-//____________________________________ÆÁÄ»ÇøÓòÒÆ¶¯_________________________________________//
-//Ö¸Áî£ºÖ¡Í·+Ö¸Áî+Ä£Ê½+ÒÆ¶¯·½Ïò+Ìî³äÑÕÉ«+¾ØĞÎ¿ò×óÉÏ½ÇÆğµã×ø±ê(Xs,Ys)+¾ØĞÎ¿òÓÒÏÂ½Ç×ø±ê(Xe,Ye)+Ö¡Î²
+//____________________________________å±å¹•åŒºåŸŸç§»åŠ¨_________________________________________//
+//æŒ‡ä»¤ï¼šå¸§å¤´+æŒ‡ä»¤+æ¨¡å¼+ç§»åŠ¨æ–¹å‘+å¡«å……é¢œè‰²+çŸ©å½¢æ¡†å·¦ä¸Šè§’èµ·ç‚¹åæ ‡(Xs,Ys)+çŸ©å½¢æ¡†å³ä¸‹è§’åæ ‡(Xe,Ye)+å¸§å°¾
 /****************************************************************************************************
-Mode£º    ROL=»·ÒÆÏò×ó¡£  ROR=»·ÒÆÏòÓÒ¡£  ROU=»·ÒÆÏòÉÏ¡£  ROD=»·ÒÆÏòÏÂ¡£
-          PTL=Æ½ÒÆÏò×ó¡£  PTR=Æ½ÒÆÏòÓÒ¡£  PTU=Æ½ÒÆÏòÉÏ¡£  PTD=Æ½ÒÆÏòÏÂ¡£   
+Modeï¼š    ROL=ç¯ç§»å‘å·¦ã€‚  ROR=ç¯ç§»å‘å³ã€‚  ROU=ç¯ç§»å‘ä¸Šã€‚  ROD=ç¯ç§»å‘ä¸‹ã€‚
+          PTL=å¹³ç§»å‘å·¦ã€‚  PTR=å¹³ç§»å‘å³ã€‚  PTU=å¹³ç§»å‘ä¸Šã€‚  PTD=å¹³ç§»å‘ä¸‹ã€‚   
 ****************************************************************************************************/
-//DIS£º  ÒÆ¶¯¾àÀë£¬ÏñËØµãÕóÊıÄ¿£¬0x0000-Ë®Æ½·Ö±æÂÊ/2£¬2Bytes¡£
-//Color£ºÌî³äÑÕÉ«£¬½öµ±Æ½ÒÆÊ±ÓĞĞ§¡£
-//£¨Xs£¬Ys£©£ºÑ¡¶¨ÇøÓòµÄ×óÉÏ½Ç×ø±ê¡£
-//£¨Xe£¬Ye£©£ºÑ¡¶¨ÇøÓòµÄÓÒÏÂ½Ç×ø±ê¡£
-void DWINLCD_Area_Movement(uint8_t Mode,uint16_t DIS,uint16_t Color,uint16_t Xs, uint16_t Ys, uint16_t Xe, uint16_t Ye)	//¾ØĞÎÇøÓòÒÆ¶¯
+//DISï¼š  ç§»åŠ¨è·ç¦»ï¼Œåƒç´ ç‚¹é˜µæ•°ç›®ï¼Œ0x0000-æ°´å¹³åˆ†è¾¨ç‡/2ï¼Œ2Bytesã€‚
+//Colorï¼šå¡«å……é¢œè‰²ï¼Œä»…å½“å¹³ç§»æ—¶æœ‰æ•ˆã€‚
+//ï¼ˆXsï¼ŒYsï¼‰ï¼šé€‰å®šåŒºåŸŸçš„å·¦ä¸Šè§’åæ ‡ã€‚
+//ï¼ˆXeï¼ŒYeï¼‰ï¼šé€‰å®šåŒºåŸŸçš„å³ä¸‹è§’åæ ‡ã€‚
+void DWINLCD_Area_Movement(uint8_t Mode,uint16_t DIS,uint16_t Color,uint16_t Xs, uint16_t Ys, uint16_t Xe, uint16_t Ye)	//çŸ©å½¢åŒºåŸŸç§»åŠ¨
 {
-	DwinSend_Buff_Size=19;                                    //Ö¸ÁîÊı¾İ³¤¶ÈÎª19£¨Ö¡Í·+Ö¸Áî+Mode+Êı¾İ+Ö¡Î²£©
-	Data_init();                                              //ÖØĞÂ¸üĞÂÊı×é
+	DwinSend_Buff_Size=19;                                    //æŒ‡ä»¤æ•°æ®é•¿åº¦ä¸º19ï¼ˆå¸§å¤´+æŒ‡ä»¤+Mode+æ•°æ®+å¸§å°¾ï¼‰
+	Data_init();                                              //é‡æ–°æ›´æ–°æ•°ç»„
 	
-	DWINSend_Buff[DwinSend_Buff_Size -18]=0x09;               //¾ØĞÎÇøÓòÒÆ¶¯Ö¸Áî
-	DWINSend_Buff[DwinSend_Buff_Size -17]=Mode;               //¾ØĞÎÇøÓòÒÆ¶¯Ä£Ê½Ö¸Áî   
+	DWINSend_Buff[DwinSend_Buff_Size -18]=0x09;               //çŸ©å½¢åŒºåŸŸç§»åŠ¨æŒ‡ä»¤
+	DWINSend_Buff[DwinSend_Buff_Size -17]=Mode;               //çŸ©å½¢åŒºåŸŸç§»åŠ¨æ¨¡å¼æŒ‡ä»¤   
 	
-	DWINSend_Buff[DwinSend_Buff_Size -16]=DIS>>8;             //¾ØĞÎÇøÓòÒÆ¶¯¾àÀë¸ß°ËÎ»  
-	DWINSend_Buff[DwinSend_Buff_Size -15]=DIS&0xFF;           //¾ØĞÎÇøÓòÒÆ¶¯¾àÀëµÍ°ËÎ»
+	DWINSend_Buff[DwinSend_Buff_Size -16]=DIS>>8;             //çŸ©å½¢åŒºåŸŸç§»åŠ¨è·ç¦»é«˜å…«ä½  
+	DWINSend_Buff[DwinSend_Buff_Size -15]=DIS&0xFF;           //çŸ©å½¢åŒºåŸŸç§»åŠ¨è·ç¦»ä½å…«ä½
 	
-	DWINSend_Buff[DwinSend_Buff_Size -14]=Color>>8;           //Ìî³äÑÕÉ«¸ß8Î»	
-	DWINSend_Buff[DwinSend_Buff_Size -13]=Color&0xFF;         //Ìî³äÑÕÉ«µÍ8Î»
+	DWINSend_Buff[DwinSend_Buff_Size -14]=Color>>8;           //å¡«å……é¢œè‰²é«˜8ä½	
+	DWINSend_Buff[DwinSend_Buff_Size -13]=Color&0xFF;         //å¡«å……é¢œè‰²ä½8ä½
 	
-     DWINSend_Buff[DwinSend_Buff_Size -12]=Xs>>8;              //Xs×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -11]=Xs&0xFF;            //Xs×ø±êµÍ°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -10]=Ys>>8;              //Ys×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -9]=Ys&0xFF;             //Ys×ø±êµÍ°ËÎ»
+     DWINSend_Buff[DwinSend_Buff_Size -12]=Xs>>8;              //Xsåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -11]=Xs&0xFF;            //Xsåæ ‡ä½å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -10]=Ys>>8;              //Ysåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -9]=Ys&0xFF;             //Ysåæ ‡ä½å…«ä½
 	
-	DWINSend_Buff[DwinSend_Buff_Size -8]=Xe>>8;               //Xe×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -7]=Xe&0xFF;             //Xe×ø±êµÍ°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -6]=Ye>>8;               //Ye×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -5]=Ye&0xFF;             //Ye×ø±êµÍ°ËÎ»
+	DWINSend_Buff[DwinSend_Buff_Size -8]=Xe>>8;               //Xeåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -7]=Xe&0xFF;             //Xeåæ ‡ä½å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -6]=Ye>>8;               //Yeåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -5]=Ye&0xFF;             //Yeåæ ‡ä½å…«ä½
 	
-	Send_Data(DWINSend_Buff);                                 //·¢ËÍÊı¾İ
+	Send_Data(DWINSend_Buff);                                 //å‘é€æ•°æ®
 }
-//____________________________ÏÔÊ¾Ò»¸ö×Ö·û/ºº×Ö________________________________//
-//Ö¸Áî:    Ö¡Í·+Ö¸Áî+Ä£Ê½+×Ö·ûÑÕÉ«+×Ö·û±³¾°ÑÕÉ«+×Ö·û×óÉÏ½Ç×ø±ê(Xs,Ys)+×Ö·û+Ö¡Î²
-//CWA:     ×Ö·û¿í¶Èµ÷Õû(CWA)ÉèÖÃ     1=µ÷Õû 0=²»µ÷Õû¡£
-//BCD:     ±³¾°ÑÕÉ«ÏÔÊ¾(BCD)ÉèÖÃ     1=ÏÔÊ¾ 0=²»ÏÔÊ¾¡£
-//Size:    ×Ö·û×ÖºÅ´óĞ¡
-//Color£º  ×Ö·ûÏÔÊ¾ÑÕÉ«¡£
-//Bcolor£º ×Ö·û±³¾°ÏÔÊ¾ÑÕÉ«¡£
-//(Xs,Ys)£ºÎÄ±¾ÏÔÊ¾Î»ÖÃ×óÉÏ½Ç×ø±ê
-//Strings£ºÒªÏÔÊ¾µÄ×Ö·û¡£
-/******************·Ç ASCII ×Ö·û°´ÕÕ GB2312 ±àÂë¸ñÊ½ºº×ÖÏÔÊ¾******************/
+//____________________________æ˜¾ç¤ºä¸€ä¸ªå­—ç¬¦/æ±‰å­—________________________________//
+//æŒ‡ä»¤:    å¸§å¤´+æŒ‡ä»¤+æ¨¡å¼+å­—ç¬¦é¢œè‰²+å­—ç¬¦èƒŒæ™¯é¢œè‰²+å­—ç¬¦å·¦ä¸Šè§’åæ ‡(Xs,Ys)+å­—ç¬¦+å¸§å°¾
+//CWA:     å­—ç¬¦å®½åº¦è°ƒæ•´(CWA)è®¾ç½®     1=è°ƒæ•´ 0=ä¸è°ƒæ•´ã€‚
+//BCD:     èƒŒæ™¯é¢œè‰²æ˜¾ç¤º(BCD)è®¾ç½®     1=æ˜¾ç¤º 0=ä¸æ˜¾ç¤ºã€‚
+//Size:    å­—ç¬¦å­—å·å¤§å°
+//Colorï¼š  å­—ç¬¦æ˜¾ç¤ºé¢œè‰²ã€‚
+//Bcolorï¼š å­—ç¬¦èƒŒæ™¯æ˜¾ç¤ºé¢œè‰²ã€‚
+//(Xs,Ys)ï¼šæ–‡æœ¬æ˜¾ç¤ºä½ç½®å·¦ä¸Šè§’åæ ‡
+//Stringsï¼šè¦æ˜¾ç¤ºçš„å­—ç¬¦ã€‚
+/******************é ASCII å­—ç¬¦æŒ‰ç…§ GB2312 ç¼–ç æ ¼å¼æ±‰å­—æ˜¾ç¤º******************/
 
 void DWINLCD_ShowChar(uint8_t CWA,uint8_t BCD,uint8_t Size,uint16_t Color, uint16_t Bcolor,uint16_t Xs, uint16_t Ys,char*str)						      
 {
 	uint16_t strlenth=0;
-	DwinSend_Buff_Size=17;                                    //Ö¸ÁîÊı¾İ³¤¶ÈÎª17£¨Ö¡Í·+Ö¸Áî+Mode+Êı¾İ+Ö¡Î²£©
-	Data_init();                                              //ÖØĞÂ¸üĞÂÊı×é
+	DwinSend_Buff_Size=17;                                    //æŒ‡ä»¤æ•°æ®é•¿åº¦ä¸º17ï¼ˆå¸§å¤´+æŒ‡ä»¤+Mode+æ•°æ®+å¸§å°¾ï¼‰
+	Data_init();                                              //é‡æ–°æ›´æ–°æ•°ç»„
 	
 	strlenth=strlen((const char*)str);
 	
-	DWINSend_Buff[DwinSend_Buff_Size -16]=0x11;               //ÏÔÊ¾×Ö·ûÖ¸Áî
-	DWINSend_Buff[DwinSend_Buff_Size -15]=CWA%2<<7|BCD%2<<6|Size; //ÏÔÊ¾×Ö·ûÄ£Ê½Ö¸Áî   
+	DWINSend_Buff[DwinSend_Buff_Size -16]=0x11;               //æ˜¾ç¤ºå­—ç¬¦æŒ‡ä»¤
+	DWINSend_Buff[DwinSend_Buff_Size -15]=CWA%2<<7|BCD%2<<6|Size; //æ˜¾ç¤ºå­—ç¬¦æ¨¡å¼æŒ‡ä»¤   
 	
-	DWINSend_Buff[DwinSend_Buff_Size -14]=Color>>8;           //×Ö·ûÑÕÉ«¸ß8Î»	
-	DWINSend_Buff[DwinSend_Buff_Size -13]=Color&0xFF;         //×Ö·ûÑÕÉ«µÍ8Î»
+	DWINSend_Buff[DwinSend_Buff_Size -14]=Color>>8;           //å­—ç¬¦é¢œè‰²é«˜8ä½	
+	DWINSend_Buff[DwinSend_Buff_Size -13]=Color&0xFF;         //å­—ç¬¦é¢œè‰²ä½8ä½
 	
-	DWINSend_Buff[DwinSend_Buff_Size -12]=Bcolor>>8;          //Ìî³ä×Ö·û±³¾°ÑÕÉ«¸ß8Î»	
-	DWINSend_Buff[DwinSend_Buff_Size -11]=Bcolor&0xFF;        //Ìî³ä×Ö·û±³¾°ÑÕÉ«µÍ8Î»
+	DWINSend_Buff[DwinSend_Buff_Size -12]=Bcolor>>8;          //å¡«å……å­—ç¬¦èƒŒæ™¯é¢œè‰²é«˜8ä½	
+	DWINSend_Buff[DwinSend_Buff_Size -11]=Bcolor&0xFF;        //å¡«å……å­—ç¬¦èƒŒæ™¯é¢œè‰²ä½8ä½
 	
-    DWINSend_Buff[DwinSend_Buff_Size -10]=Xs>>8;            //×Ö·ûXs×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -9]=Xs&0xFF;             //×Ö·ûXs×ø±êµÍ°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -8]=Ys>>8;               //×Ö·ûYs×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -7]=Ys&0xFF;             //×Ö·ûYs×ø±êµÍ°ËÎ»
+    DWINSend_Buff[DwinSend_Buff_Size -10]=Xs>>8;            //å­—ç¬¦Xsåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -9]=Xs&0xFF;             //å­—ç¬¦Xsåæ ‡ä½å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -8]=Ys>>8;               //å­—ç¬¦Ysåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -7]=Ys&0xFF;             //å­—ç¬¦Ysåæ ‡ä½å…«ä½
 	
 
-	DWINSend_Buff[DwinSend_Buff_Size -6]=*str;                //×Ö·ûÄÚÂë/ºº×Ö¸ß°ËÎ»
-	while((strlenth>1)&(*str>0x7E))                               //ÅĞ¶ÏÊÇ·ñÎªºº×Ö
+	DWINSend_Buff[DwinSend_Buff_Size -6]=*str;                //å­—ç¬¦å†…ç /æ±‰å­—é«˜å…«ä½
+	while((strlenth>1)&(*str>0x7E))                               //åˆ¤æ–­æ˜¯å¦ä¸ºæ±‰å­—
 		{
-	    DWINSend_Buff[DwinSend_Buff_Size -5]=*(str+1); break; //ºº×ÖµÍ°ËÎ»
+	    DWINSend_Buff[DwinSend_Buff_Size -5]=*(str+1); break; //æ±‰å­—ä½å…«ä½
 		}
 	
-	Send_Data(DWINSend_Buff);                                 //·¢ËÍÊı¾İ
+	Send_Data(DWINSend_Buff);                                 //å‘é€æ•°æ®
 	
 	
 }
 
-//____________________________ÏÔÊ¾Ò»¸ö×Ö·û/ºº×Ö________________________________//
+//____________________________æ˜¾ç¤ºä¸€ä¸ªå­—ç¬¦/æ±‰å­—________________________________//
 
-//Ö¸Áî£º   Ö¡Í·+Ö¸Áî+Ä£Ê½+×Ö·ûÑÕÉ«+×Ö·û±³¾°ÑÕÉ«+×Ö·û×óÉÏ½Ç×ø±ê(Xs,Ys)+×Ö·û+Ö¡Î²
-//CWA:     ×Ö·û¿í¶Èµ÷Õû(CWA)ÉèÖÃ     1=µ÷Õû 0=²»µ÷Õû¡£
-//BCD:     ±³¾°ÑÕÉ«ÏÔÊ¾(BCD)ÉèÖÃ     1=ÏÔÊ¾ 0=²»ÏÔÊ¾¡£
-//Size:    ×Ö·û×ÖºÅ´óĞ¡
-//Color£º  ×Ö·ûÏÔÊ¾ÑÕÉ«¡£
-//Bcolor£º ×Ö·û±³¾°ÏÔÊ¾ÑÕÉ«¡£
-//(Xs,Ys)£ºÎÄ±¾ÏÔÊ¾Î»ÖÃ×óÉÏ½Ç×ø±ê
-//Strings£ºÒªÏÔÊ¾µÄ×Ö·û¡£
-/******************·Ç ASCII ×Ö·û°´ÕÕ GB2312 ±àÂë¸ñÊ½ºº×ÖÏÔÊ¾******************/
+//æŒ‡ä»¤ï¼š   å¸§å¤´+æŒ‡ä»¤+æ¨¡å¼+å­—ç¬¦é¢œè‰²+å­—ç¬¦èƒŒæ™¯é¢œè‰²+å­—ç¬¦å·¦ä¸Šè§’åæ ‡(Xs,Ys)+å­—ç¬¦+å¸§å°¾
+//CWA:     å­—ç¬¦å®½åº¦è°ƒæ•´(CWA)è®¾ç½®     1=è°ƒæ•´ 0=ä¸è°ƒæ•´ã€‚
+//BCD:     èƒŒæ™¯é¢œè‰²æ˜¾ç¤º(BCD)è®¾ç½®     1=æ˜¾ç¤º 0=ä¸æ˜¾ç¤ºã€‚
+//Size:    å­—ç¬¦å­—å·å¤§å°
+//Colorï¼š  å­—ç¬¦æ˜¾ç¤ºé¢œè‰²ã€‚
+//Bcolorï¼š å­—ç¬¦èƒŒæ™¯æ˜¾ç¤ºé¢œè‰²ã€‚
+//(Xs,Ys)ï¼šæ–‡æœ¬æ˜¾ç¤ºä½ç½®å·¦ä¸Šè§’åæ ‡
+//Stringsï¼šè¦æ˜¾ç¤ºçš„å­—ç¬¦ã€‚
+/******************é ASCII å­—ç¬¦æŒ‰ç…§ GB2312 ç¼–ç æ ¼å¼æ±‰å­—æ˜¾ç¤º******************/
 void DWINLCD_ShowXChar(uint8_t CWA,uint8_t BCD,uint8_t Size,uint16_t Color, uint16_t Bcolor,uint16_t Xs, uint16_t Ys,char*str)						      
 {
 	uint16_t strlenth;
 	int i;
 	strlenth=strlen((const char*)str);
-	DwinSend_Buff_Size=15+strlenth;                           //Ö¸ÁîÊı¾İ³¤¶ÈÎª15+strlenth£¨Ö¡Í·+Ö¸Áî+Mode+Êı¾İ+Ö¡Î²£©
+	DwinSend_Buff_Size=15+strlenth;                           //æŒ‡ä»¤æ•°æ®é•¿åº¦ä¸º15+strlenthï¼ˆå¸§å¤´+æŒ‡ä»¤+Mode+æ•°æ®+å¸§å°¾ï¼‰
 	
-	Data_init();                                              //ÖØĞÂ¸üĞÂÊı×é
+	Data_init();                                              //é‡æ–°æ›´æ–°æ•°ç»„
 		
-	DWINSend_Buff[DwinSend_Buff_Size -14-strlenth]=0x11;                    //ÏÔÊ¾×Ö·ûÖ¸Áî
-	DWINSend_Buff[DwinSend_Buff_Size -13-strlenth]=CWA%2<<7|BCD%2<<6|Size;  //ÏÔÊ¾×Ö·ûÄ£Ê½Ö¸Áî   
+	DWINSend_Buff[DwinSend_Buff_Size -14-strlenth]=0x11;                    //æ˜¾ç¤ºå­—ç¬¦æŒ‡ä»¤
+	DWINSend_Buff[DwinSend_Buff_Size -13-strlenth]=CWA%2<<7|BCD%2<<6|Size;  //æ˜¾ç¤ºå­—ç¬¦æ¨¡å¼æŒ‡ä»¤   
 	
-	DWINSend_Buff[DwinSend_Buff_Size -12-strlenth]=Color>>8;           //×Ö·ûÑÕÉ«¸ß8Î»	
-	DWINSend_Buff[DwinSend_Buff_Size -11-strlenth]=Color&0xFF;         //×Ö·ûÑÕÉ«µÍ8Î»
+	DWINSend_Buff[DwinSend_Buff_Size -12-strlenth]=Color>>8;           //å­—ç¬¦é¢œè‰²é«˜8ä½	
+	DWINSend_Buff[DwinSend_Buff_Size -11-strlenth]=Color&0xFF;         //å­—ç¬¦é¢œè‰²ä½8ä½
 	
-	DWINSend_Buff[DwinSend_Buff_Size -10-strlenth]=Bcolor>>8;          //Ìî³ä×Ö·û±³¾°ÑÕÉ«¸ß8Î»	
-	DWINSend_Buff[DwinSend_Buff_Size -9-strlenth]=Bcolor&0xFF;         //Ìî³ä×Ö·û±³¾°ÑÕÉ«µÍ8Î»
+	DWINSend_Buff[DwinSend_Buff_Size -10-strlenth]=Bcolor>>8;          //å¡«å……å­—ç¬¦èƒŒæ™¯é¢œè‰²é«˜8ä½	
+	DWINSend_Buff[DwinSend_Buff_Size -9-strlenth]=Bcolor&0xFF;         //å¡«å……å­—ç¬¦èƒŒæ™¯é¢œè‰²ä½8ä½
 	
-    DWINSend_Buff[DwinSend_Buff_Size -8-strlenth]=Xs>>8;               //×Ö·ûXs×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -7-strlenth]=Xs&0xFF;             //×Ö·ûXs×ø±êµÍ°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -6-strlenth]=Ys>>8;               //×Ö·ûYs×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -5-strlenth]=Ys&0xFF;             //×Ö·ûYs×ø±êµÍ°ËÎ»
+    DWINSend_Buff[DwinSend_Buff_Size -8-strlenth]=Xs>>8;               //å­—ç¬¦Xsåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -7-strlenth]=Xs&0xFF;             //å­—ç¬¦Xsåæ ‡ä½å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -6-strlenth]=Ys>>8;               //å­—ç¬¦Ysåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -5-strlenth]=Ys&0xFF;             //å­—ç¬¦Ysåæ ‡ä½å…«ä½
 	
 
 	for(i=strlenth;i>0;i--)
-	{		DWINSend_Buff[DwinSend_Buff_Size -4-i]=*(str++); }             //×Ö·ûYs×ø±êµÍ°ËÎ»
+	{		DWINSend_Buff[DwinSend_Buff_Size -4-i]=*(str++); }             //å­—ç¬¦Ysåæ ‡ä½å…«ä½
 	
-	Send_Data(DWINSend_Buff);                                 //·¢ËÍÊı¾İ
+	Send_Data(DWINSend_Buff);                                 //å‘é€æ•°æ®
 	
 	
 }
 
-//____________________________ÏÔÊ¾1¸öÊı×Ö________________________________//
-//BCD:     ±³¾°É«ÏÔÊ¾ÉèÖÃ 1=ÏÔÊ¾ 0=²»ÏÔÊ¾¡£
-//SymNum£º  1=´ø·ûºÅÊı 0=ÎŞ·ûºÅÊı¡£
-//Dis0:     1= ÎŞĞ§0ÏÔÊ¾          0= ÎŞĞ§0²»ÏÔÊ¾¡£
-//NDis:     1= ÎŞĞ§0ÏÔÊ¾Îª0       0= ÎŞĞ§0ÏÔÊ¾Îª¿Õ¸ñ¡£
-//Size£º    ×ÖºÅ´óĞ¡£¬0x00-0x09£¬Í¬ 0x11 Ö¸Áî¡£
-//Color£º   ×Ö·ûÏÔÊ¾ÑÕÉ«¡£
-//Bcolor£º  ×Ö·û±³¾°ÏÔÊ¾ÑÕÉ«¡£
-//£¨x£¬y£©: ±äÁ¿ÏÔÊ¾µÄ×óÉÏ½Ç×ø±ê¡£
-//Datas£º1Î»Êı¾İ
-void DWINLCD_ShowNum(uint8_t BCD,uint8_t SymNum,uint8_t Dis0,uint8_t NDis,uint8_t Size,uint16_t Color, uint16_t Bcolor,uint16_t Xs,uint16_t Ys,uint8_t Num)						           //ÏÔÊ¾Ò»¸öÊı×Ö
+//____________________________æ˜¾ç¤º1ä¸ªæ•°å­—________________________________//
+//BCD:     èƒŒæ™¯è‰²æ˜¾ç¤ºè®¾ç½® 1=æ˜¾ç¤º 0=ä¸æ˜¾ç¤ºã€‚
+//SymNumï¼š  1=å¸¦ç¬¦å·æ•° 0=æ— ç¬¦å·æ•°ã€‚
+//Dis0:     1= æ— æ•ˆ0æ˜¾ç¤º          0= æ— æ•ˆ0ä¸æ˜¾ç¤ºã€‚
+//NDis:     1= æ— æ•ˆ0æ˜¾ç¤ºä¸º0       0= æ— æ•ˆ0æ˜¾ç¤ºä¸ºç©ºæ ¼ã€‚
+//Sizeï¼š    å­—å·å¤§å°ï¼Œ0x00-0x09ï¼ŒåŒ 0x11 æŒ‡ä»¤ã€‚
+//Colorï¼š   å­—ç¬¦æ˜¾ç¤ºé¢œè‰²ã€‚
+//Bcolorï¼š  å­—ç¬¦èƒŒæ™¯æ˜¾ç¤ºé¢œè‰²ã€‚
+//ï¼ˆxï¼Œyï¼‰: å˜é‡æ˜¾ç¤ºçš„å·¦ä¸Šè§’åæ ‡ã€‚
+//Datasï¼š1ä½æ•°æ®
+void DWINLCD_ShowNum(uint8_t BCD,uint8_t SymNum,uint8_t Dis0,uint8_t NDis,uint8_t Size,uint16_t Color, uint16_t Bcolor,uint16_t Xs,uint16_t Ys,uint8_t Num)						           //æ˜¾ç¤ºä¸€ä¸ªæ•°å­—
 {	
-	DwinSend_Buff_Size=18;                                    //Ö¸ÁîÊı¾İ³¤¶ÈÎª17£¨Ö¡Í·+Ö¸Áî+Mode+Êı¾İ+Ö¡Î²£©
-	Data_init();                                              //ÖØĞÂ¸üĞÂÊı×é
+	DwinSend_Buff_Size=18;                                    //æŒ‡ä»¤æ•°æ®é•¿åº¦ä¸º17ï¼ˆå¸§å¤´+æŒ‡ä»¤+Mode+æ•°æ®+å¸§å°¾ï¼‰
+	Data_init();                                              //é‡æ–°æ›´æ–°æ•°ç»„
 		
-	DWINSend_Buff[DwinSend_Buff_Size -17]=0x14;               //ÏÔÊ¾Êı×ÖÖ¸Áî
-	DWINSend_Buff[DwinSend_Buff_Size -16]=BCD%2<<7|SymNum%2<<6|Dis0%2<<5|NDis%2<<4|Size;       //ÏÔÊ¾Êı×ÖÄ£Ê½Ö¸Áî   
+	DWINSend_Buff[DwinSend_Buff_Size -17]=0x14;               //æ˜¾ç¤ºæ•°å­—æŒ‡ä»¤
+	DWINSend_Buff[DwinSend_Buff_Size -16]=BCD%2<<7|SymNum%2<<6|Dis0%2<<5|NDis%2<<4|Size;       //æ˜¾ç¤ºæ•°å­—æ¨¡å¼æŒ‡ä»¤   
 	
-	DWINSend_Buff[DwinSend_Buff_Size -15]=Color>>8;           //Êı×ÖÑÕÉ«¸ß8Î»	
-	DWINSend_Buff[DwinSend_Buff_Size -14]=Color&0xFF;         //Êı×ÖÑÕÉ«µÍ8Î»
+	DWINSend_Buff[DwinSend_Buff_Size -15]=Color>>8;           //æ•°å­—é¢œè‰²é«˜8ä½	
+	DWINSend_Buff[DwinSend_Buff_Size -14]=Color&0xFF;         //æ•°å­—é¢œè‰²ä½8ä½
 	
-	DWINSend_Buff[DwinSend_Buff_Size -13]=Bcolor>>8;          //Ìî³ä×Ö·û±³¾°ÑÕÉ«¸ß8Î»	
-	DWINSend_Buff[DwinSend_Buff_Size -12]=Bcolor&0xFF;        //Ìî³ä×Ö·û±³¾°ÑÕÉ«µÍ8Î»
+	DWINSend_Buff[DwinSend_Buff_Size -13]=Bcolor>>8;          //å¡«å……å­—ç¬¦èƒŒæ™¯é¢œè‰²é«˜8ä½	
+	DWINSend_Buff[DwinSend_Buff_Size -12]=Bcolor&0xFF;        //å¡«å……å­—ç¬¦èƒŒæ™¯é¢œè‰²ä½8ä½
 	
-	DWINSend_Buff[DwinSend_Buff_Size -11]=0x01;               //ÏÔÊ¾µÄÕûÊıÎ»Êı¡£
+	DWINSend_Buff[DwinSend_Buff_Size -11]=0x01;               //æ˜¾ç¤ºçš„æ•´æ•°ä½æ•°ã€‚
 	
-	DWINSend_Buff[DwinSend_Buff_Size -10]=0x00;               //ÏÔÊ¾µÄĞ¡ÊıÎ»Êı¡£
+	DWINSend_Buff[DwinSend_Buff_Size -10]=0x00;               //æ˜¾ç¤ºçš„å°æ•°ä½æ•°ã€‚
 	
-	DWINSend_Buff[DwinSend_Buff_Size -9]=Xs>>8;               //Êı×ÖXs×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -8]=Xs&0xFF;             //Êı×ÖXs×ø±êµÍ°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -7]=Ys>>8;               //Êı×ÖYs×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -6]=Ys&0xFF;             //Êı×ÖYs×ø±êµÍ°ËÎ»
+	DWINSend_Buff[DwinSend_Buff_Size -9]=Xs>>8;               //æ•°å­—Xsåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -8]=Xs&0xFF;             //æ•°å­—Xsåæ ‡ä½å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -7]=Ys>>8;               //æ•°å­—Ysåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -6]=Ys&0xFF;             //æ•°å­—Ysåæ ‡ä½å…«ä½
 
 	DWINSend_Buff[DwinSend_Buff_Size -5]=Num;
 	
-	Send_Data(DWINSend_Buff);                                 //·¢ËÍÊı¾İ
+	Send_Data(DWINSend_Buff);                                 //å‘é€æ•°æ®
 	
 }
 
-//____________________________ÏÔÊ¾¶à¸öÊı×Ö________________________________//
-//BCD:  ±³¾°ÑÕÉ«ÏÔÊ¾¿ª¹Ø     1=ÏÔÊ¾       0=²»ÏÔÊ¾
-//SymNum:     ÓĞÎŞ·ûºÅÊı     1=ÓĞ·ûºÅÊı   0=ÎŞ·ûºÅÊı
-//Dis0:       1= ÎŞĞ§0ÏÔÊ¾          0= ÎŞĞ§0²»ÏÔÊ¾¡£
-//NDis:       1= ÎŞĞ§0ÏÔÊ¾Îª0       0= ÎŞĞ§0ÏÔÊ¾Îª¿Õ¸ñ¡£
-//Size:       ×Ö·û×ÖºÅ´óĞ¡         12#/16#/20#/24#/28#/32#/40#/48#/56#/64#
-//Color£º     ×Ö·ûÏÔÊ¾ÑÕÉ«         
-//Bcolor£º    ×Ö·û±³¾°ÏÔÊ¾ÑÕÉ«
-//Num_I:      ÏÔÊ¾µÄÕûÊıÎ»Êı£¬   1-20
-//Num_F:      ÏÔÊ¾µÄĞ¡ÊıÎ»Êı£¬   0-20
-//(x£¬y):     ±äÁ¿ÏÔÊ¾µÄ×óÉÏ½Ç×ø±ê
-//Datas£º     ¶àÎ»Êı¾İ             ×î¶à 8 ×Ö½Ú
-/*******************Num_I+Num_F Ö®ºÍ²»ÄÜ³¬¹ı 20****************************/
-void DWINLCD_ShowXNum(uint8_t BCD,uint8_t SymNum,uint8_t Dis0,uint8_t NDis,uint8_t Size,uint16_t Color, uint16_t Bcolor,uint8_t Num_I,uint8_t Num_F,uint16_t Xs,uint16_t Ys,uint32_t XNum)	//ÏÔÊ¾¶àÎ»Êı×Ö
+//____________________________æ˜¾ç¤ºå¤šä¸ªæ•°å­—________________________________//
+//BCD:  èƒŒæ™¯é¢œè‰²æ˜¾ç¤ºå¼€å…³     1=æ˜¾ç¤º       0=ä¸æ˜¾ç¤º
+//SymNum:     æœ‰æ— ç¬¦å·æ•°     1=æœ‰ç¬¦å·æ•°   0=æ— ç¬¦å·æ•°
+//Dis0:       1= æ— æ•ˆ0æ˜¾ç¤º          0= æ— æ•ˆ0ä¸æ˜¾ç¤ºã€‚
+//NDis:       1= æ— æ•ˆ0æ˜¾ç¤ºä¸º0       0= æ— æ•ˆ0æ˜¾ç¤ºä¸ºç©ºæ ¼ã€‚
+//Size:       å­—ç¬¦å­—å·å¤§å°         12#/16#/20#/24#/28#/32#/40#/48#/56#/64#
+//Colorï¼š     å­—ç¬¦æ˜¾ç¤ºé¢œè‰²         
+//Bcolorï¼š    å­—ç¬¦èƒŒæ™¯æ˜¾ç¤ºé¢œè‰²
+//Num_I:      æ˜¾ç¤ºçš„æ•´æ•°ä½æ•°ï¼Œ   1-20
+//Num_F:      æ˜¾ç¤ºçš„å°æ•°ä½æ•°ï¼Œ   0-20
+//(xï¼Œy):     å˜é‡æ˜¾ç¤ºçš„å·¦ä¸Šè§’åæ ‡
+//Datasï¼š     å¤šä½æ•°æ®             æœ€å¤š 8 å­—èŠ‚
+/*******************Num_I+Num_F ä¹‹å’Œä¸èƒ½è¶…è¿‡ 20****************************/
+void DWINLCD_ShowXNum(uint8_t BCD,uint8_t SymNum,uint8_t Dis0,uint8_t NDis,uint8_t Size,uint16_t Color, uint16_t Bcolor,uint8_t Num_I,uint8_t Num_F,uint16_t Xs,uint16_t Ys,uint32_t XNum)	//æ˜¾ç¤ºå¤šä½æ•°å­—
 {
 	
 	uint8_t strlenth=4;
-	DwinSend_Buff_Size=21;                                          //Ö¸ÁîÊı¾İ³¤¶ÈÎª17£¨Ö¡Í·+Ö¸Áî+Mode+Êı¾İ+Ö¡Î²£©
-	Data_init();                                                    //ÖØĞÂ¸üĞÂÊı×é
+	DwinSend_Buff_Size=21;                                          //æŒ‡ä»¤æ•°æ®é•¿åº¦ä¸º17ï¼ˆå¸§å¤´+æŒ‡ä»¤+Mode+æ•°æ®+å¸§å°¾ï¼‰
+	Data_init();                                                    //é‡æ–°æ›´æ–°æ•°ç»„
 	
-	DWINSend_Buff[DwinSend_Buff_Size -16-strlenth]=0x14;               //ÏÔÊ¾Êı×ÖÖ¸Áî
+	DWINSend_Buff[DwinSend_Buff_Size -16-strlenth]=0x14;               //æ˜¾ç¤ºæ•°å­—æŒ‡ä»¤
 		
-	DWINSend_Buff[DwinSend_Buff_Size -15-strlenth]=BCD%2<<7|SymNum%2<<6|Dis0%2<<5|NDis%2<<4|Size;      //ÏÔÊ¾Êı×ÖÄ£Ê½Ö¸Áî   
+	DWINSend_Buff[DwinSend_Buff_Size -15-strlenth]=BCD%2<<7|SymNum%2<<6|Dis0%2<<5|NDis%2<<4|Size;      //æ˜¾ç¤ºæ•°å­—æ¨¡å¼æŒ‡ä»¤   
 	
 	
-	DWINSend_Buff[DwinSend_Buff_Size -14-strlenth]=Color>>8;           //Êı×ÖÑÕÉ«¸ß8Î»	
-	DWINSend_Buff[DwinSend_Buff_Size -13-strlenth]=Color&0xFF;         //Êı×ÖÑÕÉ«µÍ8Î»
+	DWINSend_Buff[DwinSend_Buff_Size -14-strlenth]=Color>>8;           //æ•°å­—é¢œè‰²é«˜8ä½	
+	DWINSend_Buff[DwinSend_Buff_Size -13-strlenth]=Color&0xFF;         //æ•°å­—é¢œè‰²ä½8ä½
 	
-	DWINSend_Buff[DwinSend_Buff_Size -12-strlenth]=Bcolor>>8;          //Ìî³ä×Ö·û±³¾°ÑÕÉ«¸ß8Î»	
-	DWINSend_Buff[DwinSend_Buff_Size -11-strlenth]=Bcolor&0xFF;        //Ìî³ä×Ö·û±³¾°ÑÕÉ«µÍ8Î»
+	DWINSend_Buff[DwinSend_Buff_Size -12-strlenth]=Bcolor>>8;          //å¡«å……å­—ç¬¦èƒŒæ™¯é¢œè‰²é«˜8ä½	
+	DWINSend_Buff[DwinSend_Buff_Size -11-strlenth]=Bcolor&0xFF;        //å¡«å……å­—ç¬¦èƒŒæ™¯é¢œè‰²ä½8ä½
 	
-	if(Num_I<=20&Num_F<=20&Num_I+Num_F<=20)                            //Num_I+Num_F Ö®ºÍ²»ÄÜ³¬¹ı 20
+	if(Num_I<=20&Num_F<=20&Num_I+Num_F<=20)                            //Num_I+Num_F ä¹‹å’Œä¸èƒ½è¶…è¿‡ 20
 	{
-		DWINSend_Buff[DwinSend_Buff_Size -10-strlenth]=Num_I;            //ÏÔÊ¾µÄÕûÊıÎ»Êı£¬0x01-0x14(1-20)¡£
-	  DWINSend_Buff[DwinSend_Buff_Size -9-strlenth]=Num_F;             //ÏÔÊ¾µÄĞ¡ÊıÎ»Êı£¬0x00-0x14(1-20)¡£
+		DWINSend_Buff[DwinSend_Buff_Size -10-strlenth]=Num_I;            //æ˜¾ç¤ºçš„æ•´æ•°ä½æ•°ï¼Œ0x01-0x14(1-20)ã€‚
+	  DWINSend_Buff[DwinSend_Buff_Size -9-strlenth]=Num_F;             //æ˜¾ç¤ºçš„å°æ•°ä½æ•°ï¼Œ0x00-0x14(1-20)ã€‚
 	}
 	else
 	{
-		DWINSend_Buff[DwinSend_Buff_Size -10-strlenth]=1;                //ÏÔÊ¾µÄÕûÊıÎ»Êı³¬³ö¹æ¶¨Ä¬ÈÏÏÔÊ¾1Î»
-	  DWINSend_Buff[DwinSend_Buff_Size -9-strlenth]=0;                 //ÏÔÊ¾µÄĞ¡ÊıÎ»Êı³¬³ö¹æ¶¨Ä¬ÈÏ²»ÏÔÊ¾
+		DWINSend_Buff[DwinSend_Buff_Size -10-strlenth]=1;                //æ˜¾ç¤ºçš„æ•´æ•°ä½æ•°è¶…å‡ºè§„å®šé»˜è®¤æ˜¾ç¤º1ä½
+	  DWINSend_Buff[DwinSend_Buff_Size -9-strlenth]=0;                 //æ˜¾ç¤ºçš„å°æ•°ä½æ•°è¶…å‡ºè§„å®šé»˜è®¤ä¸æ˜¾ç¤º
 	}
-	DWINSend_Buff[DwinSend_Buff_Size -8-strlenth]=Xs>>8;               //Êı×ÖXs×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -7-strlenth]=Xs&0xFF;             //Êı×ÖXs×ø±êµÍ°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -6-strlenth]=Ys>>8;               //Êı×ÖYs×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -5-strlenth]=Ys&0xFF;             //Êı×ÖYs×ø±êµÍ°ËÎ»
+	DWINSend_Buff[DwinSend_Buff_Size -8-strlenth]=Xs>>8;               //æ•°å­—Xsåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -7-strlenth]=Xs&0xFF;             //æ•°å­—Xsåæ ‡ä½å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -6-strlenth]=Ys>>8;               //æ•°å­—Ysåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -5-strlenth]=Ys&0xFF;             //æ•°å­—Ysåæ ‡ä½å…«ä½
 
-	DWINSend_Buff[DwinSend_Buff_Size -strlenth-4]= XNum>>24;           //Êı×Ö¸ß
-	DWINSend_Buff[DwinSend_Buff_Size -strlenth-3]= XNum>>16&0xff;      //Êı×Ö¸ß
-	DWINSend_Buff[DwinSend_Buff_Size -strlenth-2]= XNum>>8&0xff;       //Êı×ÖµÍ
-	DWINSend_Buff[DwinSend_Buff_Size -strlenth-1]= XNum&0xFF;          //Êı×ÖµÍ
+	DWINSend_Buff[DwinSend_Buff_Size -strlenth-4]= XNum>>24;           //æ•°å­—é«˜
+	DWINSend_Buff[DwinSend_Buff_Size -strlenth-3]= XNum>>16&0xff;      //æ•°å­—é«˜
+	DWINSend_Buff[DwinSend_Buff_Size -strlenth-2]= XNum>>8&0xff;       //æ•°å­—ä½
+	DWINSend_Buff[DwinSend_Buff_Size -strlenth-1]= XNum&0xFF;          //æ•°å­—ä½
 	
-	Send_Data(DWINSend_Buff);                                          //·¢ËÍÊı¾İ
+	Send_Data(DWINSend_Buff);                                          //å‘é€æ•°æ®
 }
 
-//____________________________ÏÔÊ¾¶şÎ¬Âë________________________________//
-//QR_Pixel:  ¶şÎ¬ÂëÃ¿¸öµãÕ¼ÓÃÏñËØµã´óĞ¡£º0x01-0x0F£¨1-16£©
-//(Nx£¬Ny):  ¶şÎ¬ÂëÏÔÊ¾µÄ×óÉÏ½Ç×ø±ê
-//str£º      ¶àÎ»Êı¾İ 
-/**************¶şÎ¬Âë´óĞ¡Îª£¨46*QR_Pixel£©*£¨46*QR_Pixle£©µãÕó************/
-void DWINLCD_QR_Code(uint8_t QR_Pixel,uint16_t Xs,uint16_t Ys,char*str)	    //ÏÔÊ¾¶şÎ¬Âë
+//____________________________æ˜¾ç¤ºäºŒç»´ç ________________________________//
+//QR_Pixel:  äºŒç»´ç æ¯ä¸ªç‚¹å ç”¨åƒç´ ç‚¹å¤§å°ï¼š0x01-0x0Fï¼ˆ1-16ï¼‰
+//(Nxï¼ŒNy):  äºŒç»´ç æ˜¾ç¤ºçš„å·¦ä¸Šè§’åæ ‡
+//strï¼š      å¤šä½æ•°æ® 
+/**************äºŒç»´ç å¤§å°ä¸ºï¼ˆ46*QR_Pixelï¼‰*ï¼ˆ46*QR_Pixleï¼‰ç‚¹é˜µ************/
+void DWINLCD_QR_Code(uint8_t QR_Pixel,uint16_t Xs,uint16_t Ys,char*str)	    //æ˜¾ç¤ºäºŒç»´ç 
 {
 	uint16_t strlenth;
 	int i;
 	strlenth=strlen((const char*)str);
-	DwinSend_Buff_Size=11+strlenth;                       //Ö¸ÁîÊı¾İ³¤¶ÈÎª15+strlenth£¨Ö¡Í·+Ö¸Áî+Mode+Êı¾İ+Ö¡Î²£©
+	DwinSend_Buff_Size=11+strlenth;                       //æŒ‡ä»¤æ•°æ®é•¿åº¦ä¸º15+strlenthï¼ˆå¸§å¤´+æŒ‡ä»¤+Mode+æ•°æ®+å¸§å°¾ï¼‰
 	
-	Data_init();                                          //ÖØĞÂ¸üĞÂÊı×é
+	Data_init();                                          //é‡æ–°æ›´æ–°æ•°ç»„
 		
-	DWINSend_Buff[DwinSend_Buff_Size -10-strlenth]=0x21;               //ÏÔÊ¾¶şÎ¬ÂëÖ¸Áî
+	DWINSend_Buff[DwinSend_Buff_Size -10-strlenth]=0x21;               //æ˜¾ç¤ºäºŒç»´ç æŒ‡ä»¤
  
-	DWINSend_Buff[DwinSend_Buff_Size -9-strlenth]=Xs>>8;               //¶şÎ¬ÂëXs×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -8-strlenth]=Xs&0xFF;             //¶şÎ¬ÂëXs×ø±êµÍ°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -7-strlenth]=Ys>>8;               //¶şÎ¬ÂëYs×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -6-strlenth]=Ys&0xFF;             //¶şÎ¬ÂëYs×ø±êµÍ°ËÎ»
+	DWINSend_Buff[DwinSend_Buff_Size -9-strlenth]=Xs>>8;               //äºŒç»´ç Xsåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -8-strlenth]=Xs&0xFF;             //äºŒç»´ç Xsåæ ‡ä½å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -7-strlenth]=Ys>>8;               //äºŒç»´ç Ysåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -6-strlenth]=Ys&0xFF;             //äºŒç»´ç Ysåæ ‡ä½å…«ä½
 	
-if(QR_Pixel<=6)                                                      //¸ù¾İÊµ¼ÊÆÁÄ»´óĞ¡ÉèÖÃÉÏÏŞÏñËØµã 
-  DWINSend_Buff[DwinSend_Buff_Size -5-strlenth]=QR_Pixel;            //¶şÎ¬ÂëÏñËØµã´óĞ¡
+if(QR_Pixel<=6)                                                      //æ ¹æ®å®é™…å±å¹•å¤§å°è®¾ç½®ä¸Šé™åƒç´ ç‚¹ 
+  DWINSend_Buff[DwinSend_Buff_Size -5-strlenth]=QR_Pixel;            //äºŒç»´ç åƒç´ ç‚¹å¤§å°
  else
-	DWINSend_Buff[DwinSend_Buff_Size -5-strlenth]=0x01;               //¶şÎ¬ÂëÏñËØµã´óĞ¡³¬³öÄ¬ÈÏÎª1
+	DWINSend_Buff[DwinSend_Buff_Size -5-strlenth]=0x01;               //äºŒç»´ç åƒç´ ç‚¹å¤§å°è¶…å‡ºé»˜è®¤ä¸º1
  
 	for(i=strlenth;i>0;i--)
-	{		DWINSend_Buff[DwinSend_Buff_Size -4-i]=*(str++); }             //¶şÎ¬ÂëÄÚÈİÏÔÊ¾	
+	{		DWINSend_Buff[DwinSend_Buff_Size -4-i]=*(str++); }             //äºŒç»´ç å†…å®¹æ˜¾ç¤º	
 
-	Send_Data(DWINSend_Buff);                                          //·¢ËÍÊı¾İ
+	Send_Data(DWINSend_Buff);                                          //å‘é€æ•°æ®
 	
 }
 
-//____________________________ÏÔÊ¾Í¼Æ¬________________________________//
+//____________________________æ˜¾ç¤ºå›¾ç‰‡________________________________//
 
-/****JPEG Í¼Æ¬ÏÔÊ¾£»480*272 ·Ö±æÂÊ 4:1:1 ¸ñÊ½Ñ¹Ëõ´¦ÀíÊ±¼äÎª 250mS¡£****/
-//JPEG_ID£º   0x00-0x0F£¬¶ÔÓ¦ JPEG ´æ´¢µÄÍ¼Æ¬ÆğÊ¼ ID¡£
-void DWINLCD_JPEG_Display(uint16_t JPEG_ID)	                //ÏÔÊ¾Í¼Æ¬
+/****JPEG å›¾ç‰‡æ˜¾ç¤ºï¼›480*272 åˆ†è¾¨ç‡ 4:1:1 æ ¼å¼å‹ç¼©å¤„ç†æ—¶é—´ä¸º 250mSã€‚****/
+//JPEG_IDï¼š   0x00-0x0Fï¼Œå¯¹åº” JPEG å­˜å‚¨çš„å›¾ç‰‡èµ·å§‹ IDã€‚
+void DWINLCD_JPEG_Display(uint16_t JPEG_ID)	                //æ˜¾ç¤ºå›¾ç‰‡
 {
 	
-	DwinSend_Buff_Size=8;                                 //Ö¸ÁîÊı¾İ³¤¶ÈÎª8£¨Ö¡Í·+Ö¸Áî+Mode+Êı¾İ+Ö¡Î²£©	
-	Data_init();                                          //ÖØĞÂ¸üĞÂÊı×é
+	DwinSend_Buff_Size=8;                                 //æŒ‡ä»¤æ•°æ®é•¿åº¦ä¸º8ï¼ˆå¸§å¤´+æŒ‡ä»¤+Mode+æ•°æ®+å¸§å°¾ï¼‰	
+	Data_init();                                          //é‡æ–°æ›´æ–°æ•°ç»„
 		
-	DWINSend_Buff[DwinSend_Buff_Size -7]=0x22;            //ÏÔÊ¾Í¼Æ¬Ö¸Áî
+	DWINSend_Buff[DwinSend_Buff_Size -7]=0x22;            //æ˜¾ç¤ºå›¾ç‰‡æŒ‡ä»¤
 	
   DWINSend_Buff[DwinSend_Buff_Size -6]=JPEG_ID>>8;      //
 	DWINSend_Buff[DwinSend_Buff_Size -5]=JPEG_ID&0xFF;
 
-	Send_Data(DWINSend_Buff);                             //·¢ËÍÊı¾İ
-	Delay_ms(300);                                        //µÈ´ıÆÁÄ»´¦ÀíÊ±¼ä
+	Send_Data(DWINSend_Buff);                             //å‘é€æ•°æ®
+	Delay_ms(300);                                        //ç­‰å¾…å±å¹•å¤„ç†æ—¶é—´
 }
 
-//____________________________ÏÔÊ¾·½Ïòµ÷Õû________________________________//
-//Dis_CFG £º  0x00=0   ¶È£¬   ²»Ğı×ª¡£       0x01=90  ¶ÈĞı×ª¡£
-//            0x02=180 ¶È£¬ ÊÓ½Ç·­×ª¡£       0x03=270 ¶ÈĞı×ª¡£
-void DWINLCD_Display_Dir(uint8_t Dis_CFG)								    //ÉèÖÃÆÁÄ»ÏÔÊ¾·½Ïò
+//____________________________æ˜¾ç¤ºæ–¹å‘è°ƒæ•´________________________________//
+//Dis_CFG ï¼š  0x00=0   åº¦ï¼Œ   ä¸æ—‹è½¬ã€‚       0x01=90  åº¦æ—‹è½¬ã€‚
+//            0x02=180 åº¦ï¼Œ è§†è§’ç¿»è½¬ã€‚       0x03=270 åº¦æ—‹è½¬ã€‚
+void DWINLCD_Display_Dir(uint8_t Dis_CFG)								    //è®¾ç½®å±å¹•æ˜¾ç¤ºæ–¹å‘
 {
 		
-	DwinSend_Buff_Size=9;                                 //Ö¸ÁîÊı¾İ³¤¶ÈÎª9£¨Ö¡Í·+Ö¸Áî+Mode+Êı¾İ+Ö¡Î²£©	
-	Data_init();                                          //ÖØĞÂ¸üĞÂÊı×é
+	DwinSend_Buff_Size=9;                                 //æŒ‡ä»¤æ•°æ®é•¿åº¦ä¸º9ï¼ˆå¸§å¤´+æŒ‡ä»¤+Mode+æ•°æ®+å¸§å°¾ï¼‰	
+	Data_init();                                          //é‡æ–°æ›´æ–°æ•°ç»„
 		
-	DWINSend_Buff[DwinSend_Buff_Size -8]=0x34;            //ÆÁÄ»ÏÔÊ¾·½Ïòµ÷ÕûÖ¸Áî
+	DWINSend_Buff[DwinSend_Buff_Size -8]=0x34;            //å±å¹•æ˜¾ç¤ºæ–¹å‘è°ƒæ•´æŒ‡ä»¤
 	DWINSend_Buff[DwinSend_Buff_Size -7]=0x5A;            
 	DWINSend_Buff[DwinSend_Buff_Size -6]=0xA5;            
 	
-  DWINSend_Buff[DwinSend_Buff_Size -5]=Dis_CFG%4;       //ÆÁÄ»ÏÔÊ¾·½Ïòµ÷ÕûÖ¸Áî
+  DWINSend_Buff[DwinSend_Buff_Size -5]=Dis_CFG%4;       //å±å¹•æ˜¾ç¤ºæ–¹å‘è°ƒæ•´æŒ‡ä»¤
 	
-	Send_Data(DWINSend_Buff);                             //·¢ËÍÊı¾İ
+	Send_Data(DWINSend_Buff);                             //å‘é€æ•°æ®
 }
 
-//____________________________ÉèÖÃÀ©Õ¹´®¿Ú²¨ÌØÂÊ________________________________
+//____________________________è®¾ç½®æ‰©å±•ä¸²å£æ³¢ç‰¹ç‡________________________________
 
-/********ÉÏµçÄ¬ÈÏÖµÊÇ 0x0088 £¬¶ÔÓ¦ 115200bps ²¨ÌØÂÊ¡£***************************/
+/********ä¸Šç”µé»˜è®¤å€¼æ˜¯ 0x0088 ï¼Œå¯¹åº” 115200bps æ³¢ç‰¹ç‡ã€‚***************************/
 
-void  DWINLCDBode_Set(uint16_t Set)                          //µ÷½ÚÀ©Õ¹´®¿Ú²¨ÌØÂÊ
+void  DWINLCDBode_Set(uint16_t Set)                          //è°ƒèŠ‚æ‰©å±•ä¸²å£æ³¢ç‰¹ç‡
 {
 	
 			
-	DwinSend_Buff_Size=8;                                 //Ö¸ÁîÊı¾İ³¤¶ÈÎª8£¨Ö¡Í·+Ö¸Áî+Mode+Êı¾İ+Ö¡Î²£©	
-	Data_init();                                          //ÖØĞÂ¸üĞÂÊı×é
+	DwinSend_Buff_Size=8;                                 //æŒ‡ä»¤æ•°æ®é•¿åº¦ä¸º8ï¼ˆå¸§å¤´+æŒ‡ä»¤+Mode+æ•°æ®+å¸§å°¾ï¼‰	
+	Data_init();                                          //é‡æ–°æ›´æ–°æ•°ç»„
 		
-	DWINSend_Buff[DwinSend_Buff_Size -7]=0x38;            //ÉèÖÃÀ©Õ¹´®¿Ú²¨ÌØÂÊÖ¸Áî
+	DWINSend_Buff[DwinSend_Buff_Size -7]=0x38;            //è®¾ç½®æ‰©å±•ä¸²å£æ³¢ç‰¹ç‡æŒ‡ä»¤
 	
 	DWINSend_Buff[DwinSend_Buff_Size -6]=15667200/Set/256;            
 	DWINSend_Buff[DwinSend_Buff_Size -5]=15667200/Set%256;            
 	
-	Send_Data(DWINSend_Buff);                             //·¢ËÍÊı¾İ
+	Send_Data(DWINSend_Buff);                             //å‘é€æ•°æ®
 }
 
-//____________________________»­Ô²________________________________
-//Color: Ô²ĞÎÑÕÉ«
-//x0:    Ô²ĞÎÔ²ĞÄºá×ø±ê
-//y0:    Ô²ĞÎÔ²ĞÄ×İ×ø±ê
-//r:     Ô²ĞÎ°ë¾¶
+//____________________________ç”»åœ†________________________________
+//Color: åœ†å½¢é¢œè‰²
+//x0:    åœ†å½¢åœ†å¿ƒæ¨ªåæ ‡
+//y0:    åœ†å½¢åœ†å¿ƒçºµåæ ‡
+//r:     åœ†å½¢åŠå¾„
 
-void DWINLCD_Draw_Circle(uint16_t Color,uint16_t x0,uint16_t y0,uint8_t r)			   //»­Ô²
+void DWINLCD_Draw_Circle(uint16_t Color,uint16_t x0,uint16_t y0,uint8_t r)			   //ç”»åœ†
 {
 	int a,b;
 	a=0;	  
@@ -496,27 +496,27 @@ void DWINLCD_Draw_Circle(uint16_t Color,uint16_t x0,uint16_t y0,uint8_t r)			   
 	{
 		b=sqrt(r*r-a*a);
 		while(a==0){ b=b-1;break;}
-		DWINLCD_DrawPoint(Color,1,1,x0+a,y0+b);		               //»­µãÉÈÇø1	
-		DWINLCD_DrawPoint(Color,1,1,x0+b,y0+a);		               //»­µãÉÈÇø2
-		DWINLCD_DrawPoint(Color,1,1,x0+b,y0-a);		               //»­µãÉÈÇø3	
-		DWINLCD_DrawPoint(Color,1,1,x0+a,y0-b);		               //»­µãÉÈÇø4
+		DWINLCD_DrawPoint(Color,1,1,x0+a,y0+b);		               //ç”»ç‚¹æ‰‡åŒº1	
+		DWINLCD_DrawPoint(Color,1,1,x0+b,y0+a);		               //ç”»ç‚¹æ‰‡åŒº2
+		DWINLCD_DrawPoint(Color,1,1,x0+b,y0-a);		               //ç”»ç‚¹æ‰‡åŒº3	
+		DWINLCD_DrawPoint(Color,1,1,x0+a,y0-b);		               //ç”»ç‚¹æ‰‡åŒº4
 			
-		DWINLCD_DrawPoint(Color,1,1,x0-a,y0-b);		              //»­µãÉÈÇø5			
-		DWINLCD_DrawPoint(Color,1,1,x0-b,y0-a);		              //»­µãÉÈÇø6
-		DWINLCD_DrawPoint(Color,1,1,x0-b,y0+a);		              //»­µãÉÈÇø7	
-		DWINLCD_DrawPoint(Color,1,1,x0-a,y0+b);		              //»­µãÉÈÇø8	
+		DWINLCD_DrawPoint(Color,1,1,x0-a,y0-b);		              //ç”»ç‚¹æ‰‡åŒº5			
+		DWINLCD_DrawPoint(Color,1,1,x0-b,y0-a);		              //ç”»ç‚¹æ‰‡åŒº6
+		DWINLCD_DrawPoint(Color,1,1,x0-b,y0+a);		              //ç”»ç‚¹æ‰‡åŒº7	
+		DWINLCD_DrawPoint(Color,1,1,x0-a,y0+b);		              //ç”»ç‚¹æ‰‡åŒº8	
 		a++;   					    
 	}
 }
 
 
-//____________________________Ô²ĞÍÌî³ä________________________________
-//FColor: Ô²ĞÎÌî³äÑÕÉ«
-//x0:     Ô²ĞÎÔ²ĞÄºá×ø±ê
-//y0:     Ô²ĞÎÔ²ĞÄ×İ×ø±ê
-//r:      Ô²ĞÎ°ë¾¶
+//____________________________åœ†å‹å¡«å……________________________________
+//FColor: åœ†å½¢å¡«å……é¢œè‰²
+//x0:     åœ†å½¢åœ†å¿ƒæ¨ªåæ ‡
+//y0:     åœ†å½¢åœ†å¿ƒçºµåæ ‡
+//r:      åœ†å½¢åŠå¾„
 
-void DWINLCD_CircleFill(uint16_t FColor,uint16_t x0,uint16_t y0,uint8_t r)			   //Ô²ĞÍÌî³ä
+void DWINLCD_CircleFill(uint16_t FColor,uint16_t x0,uint16_t y0,uint8_t r)			   //åœ†å‹å¡«å……
 {
 	int a,b;
 
@@ -526,67 +526,67 @@ for(;r>0;r--)
 		{
 			b=sqrt(r*r-a*a);
 			while(a==0){ b=b-1;break;}
-			DWINLCD_DrawPoint(FColor,2,2,x0+a,y0+b);		               //»­µãÉÈÇø1	
-			DWINLCD_DrawPoint(FColor,2,2,x0+b,y0+a);		               //»­µãÉÈÇø2
-			DWINLCD_DrawPoint(FColor,2,2,x0+b,y0-a);		               //»­µãÉÈÇø3	
-			DWINLCD_DrawPoint(FColor,2,2,x0+a,y0-b);		               //»­µãÉÈÇø4
+			DWINLCD_DrawPoint(FColor,2,2,x0+a,y0+b);		               //ç”»ç‚¹æ‰‡åŒº1	
+			DWINLCD_DrawPoint(FColor,2,2,x0+b,y0+a);		               //ç”»ç‚¹æ‰‡åŒº2
+			DWINLCD_DrawPoint(FColor,2,2,x0+b,y0-a);		               //ç”»ç‚¹æ‰‡åŒº3	
+			DWINLCD_DrawPoint(FColor,2,2,x0+a,y0-b);		               //ç”»ç‚¹æ‰‡åŒº4
 				
-			DWINLCD_DrawPoint(FColor,2,2,x0-a,y0-b);		               //»­µãÉÈÇø5			
-			DWINLCD_DrawPoint(FColor,2,2,x0-b,y0-a);		               //»­µãÉÈÇø6
-			DWINLCD_DrawPoint(FColor,2,2,x0-b,y0+a);		               //»­µãÉÈÇø7	
-			DWINLCD_DrawPoint(FColor,2,2,x0-a,y0+b);		               //»­µãÉÈÇø8	
+			DWINLCD_DrawPoint(FColor,2,2,x0-a,y0-b);		               //ç”»ç‚¹æ‰‡åŒº5			
+			DWINLCD_DrawPoint(FColor,2,2,x0-b,y0-a);		               //ç”»ç‚¹æ‰‡åŒº6
+			DWINLCD_DrawPoint(FColor,2,2,x0-b,y0+a);		               //ç”»ç‚¹æ‰‡åŒº7	
+			DWINLCD_DrawPoint(FColor,2,2,x0-a,y0+b);		               //ç”»ç‚¹æ‰‡åŒº8	
 			a=a+2;   					    
 		}
   }
 }
-//____________________________ÏÔÊ¾ICOÍ¼±ê________________________________
-//£¨Xs£¬Ys£©: Í¼±êÏÔÊ¾µÄ×óÉÏ½Ç×ø±ê¡£
-//Í¼±ê±³¾°ÏÔÊ¾IBD: 0=±³¾°ÂË³ı²»ÏÔÊ¾£¬ 1=±³¾°ÏÔÊ¾        \\ÉèÖÃ±³¾°ÂË³ı²»ÏÔÊ¾Ê±£¬±³¾°±ØĞëÎª´¿ºÚÉ«//
-//±³¾°Í¼Æ¬»Ö¸´BIR: 0=±³¾°Í¼Æ¬²»»Ö¸´ £¬1=×Ô¶¯Ê¹ÓÃ        \\0#ĞéÄâÏÔÊ¾ÇøÍ¼Æ¬×ö±³¾°»Ö¸´//
-//±³¾°ÂË³ıÇ¿¶ÈBFI: 0=ÆÕÍ¨£¬1=ÔöÇ¿                       \\£¨½öµ±Í¼±ê±³¾°ÏÔÊ¾=0Ê±ÓĞĞ§£©//
-//Í¼±ê¿â´æ´¢Î»ÖÃISI: 0X00-0X0F
-//Icon_IDs£º  ĞèÒªÏÔÊ¾µÄÍ¼±êID£¬1¸öIDÓÃ1¸öByte±íÊ¾£¬ 0x00-0xFF
-void DWINLCD_ICO_Display(uint16_t Xs, uint16_t Ys,uint8_t IBD,uint8_t BIR,uint8_t BFI,uint8_t ISI,uint8_t Icon_IDs)	     //ÏÔÊ¾Í¼±ê
+//____________________________æ˜¾ç¤ºICOå›¾æ ‡________________________________
+//ï¼ˆXsï¼ŒYsï¼‰: å›¾æ ‡æ˜¾ç¤ºçš„å·¦ä¸Šè§’åæ ‡ã€‚
+//å›¾æ ‡èƒŒæ™¯æ˜¾ç¤ºIBD: 0=èƒŒæ™¯æ»¤é™¤ä¸æ˜¾ç¤ºï¼Œ 1=èƒŒæ™¯æ˜¾ç¤º        \\è®¾ç½®èƒŒæ™¯æ»¤é™¤ä¸æ˜¾ç¤ºæ—¶ï¼ŒèƒŒæ™¯å¿…é¡»ä¸ºçº¯é»‘è‰²//
+//èƒŒæ™¯å›¾ç‰‡æ¢å¤BIR: 0=èƒŒæ™¯å›¾ç‰‡ä¸æ¢å¤ ï¼Œ1=è‡ªåŠ¨ä½¿ç”¨        \\0#è™šæ‹Ÿæ˜¾ç¤ºåŒºå›¾ç‰‡åšèƒŒæ™¯æ¢å¤//
+//èƒŒæ™¯æ»¤é™¤å¼ºåº¦BFI: 0=æ™®é€šï¼Œ1=å¢å¼º                       \\ï¼ˆä»…å½“å›¾æ ‡èƒŒæ™¯æ˜¾ç¤º=0æ—¶æœ‰æ•ˆï¼‰//
+//å›¾æ ‡åº“å­˜å‚¨ä½ç½®ISI: 0X00-0X0F
+//Icon_IDsï¼š  éœ€è¦æ˜¾ç¤ºçš„å›¾æ ‡IDï¼Œ1ä¸ªIDç”¨1ä¸ªByteè¡¨ç¤ºï¼Œ 0x00-0xFF
+void DWINLCD_ICO_Display(uint16_t Xs, uint16_t Ys,uint8_t IBD,uint8_t BIR,uint8_t BFI,uint8_t ISI,uint8_t Icon_IDs)	     //æ˜¾ç¤ºå›¾æ ‡
 {
 	
-	DwinSend_Buff_Size=12;                                //Ö¸ÁîÊı¾İ³¤¶ÈÎª8£¨Ö¡Í·+Ö¸Áî+Mode+Êı¾İ+Ö¡Î²£©	
-	Data_init();                                          //ÖØĞÂ¸üĞÂÊı×é
+	DwinSend_Buff_Size=12;                                //æŒ‡ä»¤æ•°æ®é•¿åº¦ä¸º8ï¼ˆå¸§å¤´+æŒ‡ä»¤+Mode+æ•°æ®+å¸§å°¾ï¼‰	
+	Data_init();                                          //é‡æ–°æ›´æ–°æ•°ç»„
 		
-	DWINSend_Buff[DwinSend_Buff_Size -11]=0x23;            //ÏÔÊ¾Í¼±êÁî
+	DWINSend_Buff[DwinSend_Buff_Size -11]=0x23;            //æ˜¾ç¤ºå›¾æ ‡ä»¤
 	
-	DWINSend_Buff[DwinSend_Buff_Size -10]=Xs>>8;               //¶şÎ¬ÂëXs×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -9]=Xs&0xFF;             //¶şÎ¬ÂëXs×ø±êµÍ°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -8]=Ys>>8;               //¶şÎ¬ÂëYs×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -7]=Ys&0xFF;             //¶şÎ¬ÂëYs×ø±êµÍ°ËÎ»
-  	DWINSend_Buff[DwinSend_Buff_Size -6]=IBD%2<<7|BIR%2<<6|BFI%2<<5|ISI;      //¶şÎ¬ÂëXs×ø±ê¸ß°ËÎ»
+	DWINSend_Buff[DwinSend_Buff_Size -10]=Xs>>8;               //äºŒç»´ç Xsåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -9]=Xs&0xFF;             //äºŒç»´ç Xsåæ ‡ä½å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -8]=Ys>>8;               //äºŒç»´ç Ysåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -7]=Ys&0xFF;             //äºŒç»´ç Ysåæ ‡ä½å…«ä½
+  	DWINSend_Buff[DwinSend_Buff_Size -6]=IBD%2<<7|BIR%2<<6|BFI%2<<5|ISI;      //äºŒç»´ç Xsåæ ‡é«˜å…«ä½
 	DWINSend_Buff[DwinSend_Buff_Size -5]=Icon_IDs;
 
-	Send_Data(DWINSend_Buff);                             //·¢ËÍÊı¾İ
+	Send_Data(DWINSend_Buff);                             //å‘é€æ•°æ®
 }
 
-//____________________________ICOÍ¼±ê¶¯»­play________________________________
-//£¨Xs£¬Ys£©: Í¼±êÏÔÊ¾µÄ×óÉÏ½Ç×ø±ê¡£
-//¿ª¹Ø¿ØÖÆSC£º1=±¾×é¶¯»­¿ªÆô          0=±¾×é¶¯»­¹Ø±Õ£»         ¿ÉÓÉ 0x29 Ö¸Áî¿ØÖÆ
-//Æô¶¯Ä£Ê½LM£º1=Æô¶¯´ÓÆğÊ¼Í¼±ê¿ªÊ¼    0=Æô¶¯´ÓÉÏ´ÎÍ£Ö¹Î»ÖÃ¿ªÊ¼
-//±¾×é¶¯»­ÊÇµÚ¼¸×é¶¯»­£º±¾×é¶¯»­Í¼±êÖ¸ÁîÎ»ÖÃ£¬0x00-0x0F£¬Ò»¹²ÓĞ 16 ×é¶¯»­Ö¸Áî¡£
-//Icon_lib£º  Í¼±ê¿â´æ´¢Î»ÖÃ£¬0x00-0x0F¡£
-//Icon_IDs£º  ¶¯»­ÆğÊ¼Í¼±êÎ»ÖÃ£¬0x00-0xFF¡£
-//Icon_IDe£º  ¶¯»­ÖÕÖ¹Í¼±êÎ»ÖÃ£¬0x00-0xFF¡£
-//Delay_time£º¶¯»­Í¼±êÏÔÊ¾Ê±¼ä¼ä¸ô£¬0x00-0xFF£¬µ¥Î» 10mS¡£
-void DWINLCD_ICOplay(uint16_t Xs, uint16_t Ys,uint8_t SC,uint8_t LM,uint8_t IconID,uint8_t Icon_lib,uint8_t Icon_IDs,uint8_t Icon_IDe,uint8_t Delay_time)	     //ICOÍ¼±ê¶¯»­play
+//____________________________ICOå›¾æ ‡åŠ¨ç”»play________________________________
+//ï¼ˆXsï¼ŒYsï¼‰: å›¾æ ‡æ˜¾ç¤ºçš„å·¦ä¸Šè§’åæ ‡ã€‚
+//å¼€å…³æ§åˆ¶SCï¼š1=æœ¬ç»„åŠ¨ç”»å¼€å¯          0=æœ¬ç»„åŠ¨ç”»å…³é—­ï¼›         å¯ç”± 0x29 æŒ‡ä»¤æ§åˆ¶
+//å¯åŠ¨æ¨¡å¼LMï¼š1=å¯åŠ¨ä»èµ·å§‹å›¾æ ‡å¼€å§‹    0=å¯åŠ¨ä»ä¸Šæ¬¡åœæ­¢ä½ç½®å¼€å§‹
+//æœ¬ç»„åŠ¨ç”»æ˜¯ç¬¬å‡ ç»„åŠ¨ç”»ï¼šæœ¬ç»„åŠ¨ç”»å›¾æ ‡æŒ‡ä»¤ä½ç½®ï¼Œ0x00-0x0Fï¼Œä¸€å…±æœ‰ 16 ç»„åŠ¨ç”»æŒ‡ä»¤ã€‚
+//Icon_libï¼š  å›¾æ ‡åº“å­˜å‚¨ä½ç½®ï¼Œ0x00-0x0Fã€‚
+//Icon_IDsï¼š  åŠ¨ç”»èµ·å§‹å›¾æ ‡ä½ç½®ï¼Œ0x00-0xFFã€‚
+//Icon_IDeï¼š  åŠ¨ç”»ç»ˆæ­¢å›¾æ ‡ä½ç½®ï¼Œ0x00-0xFFã€‚
+//Delay_timeï¼šåŠ¨ç”»å›¾æ ‡æ˜¾ç¤ºæ—¶é—´é—´éš”ï¼Œ0x00-0xFFï¼Œå•ä½ 10mSã€‚
+void DWINLCD_ICOplay(uint16_t Xs, uint16_t Ys,uint8_t SC,uint8_t LM,uint8_t IconID,uint8_t Icon_lib,uint8_t Icon_IDs,uint8_t Icon_IDe,uint8_t Delay_time)	     //ICOå›¾æ ‡åŠ¨ç”»play
 {
 	
-	DwinSend_Buff_Size=15;                                //Ö¸ÁîÊı¾İ³¤¶ÈÎª8£¨Ö¡Í·+Ö¸Áî+Mode+Êı¾İ+Ö¡Î²£©	
-	Data_init();                                          //ÖØĞÂ¸üĞÂÊı×é
+	DwinSend_Buff_Size=15;                                //æŒ‡ä»¤æ•°æ®é•¿åº¦ä¸º8ï¼ˆå¸§å¤´+æŒ‡ä»¤+Mode+æ•°æ®+å¸§å°¾ï¼‰	
+	Data_init();                                          //é‡æ–°æ›´æ–°æ•°ç»„
 		
-	DWINSend_Buff[DwinSend_Buff_Size -14]=0x28;            //ÏÔÊ¾Í¼±êÁî
+	DWINSend_Buff[DwinSend_Buff_Size -14]=0x28;            //æ˜¾ç¤ºå›¾æ ‡ä»¤
 	
-	DWINSend_Buff[DwinSend_Buff_Size -13]=Xs>>8;              //ICO_Xs×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -12]=Xs&0xFF;             //ICO_Xs×ø±êµÍ°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -11]=Ys>>8;               //ICO_Ys×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -10]=Ys&0xFF;             //ICO_Ys×ø±êµÍ°ËÎ»
+	DWINSend_Buff[DwinSend_Buff_Size -13]=Xs>>8;              //ICO_Xsåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -12]=Xs&0xFF;             //ICO_Xsåæ ‡ä½å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -11]=Ys>>8;               //ICO_Ysåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -10]=Ys&0xFF;             //ICO_Ysåæ ‡ä½å…«ä½
 	
-  DWINSend_Buff[DwinSend_Buff_Size -9]=SC%2<<7|LM%2<<6|IconID;      //¶şÎ¬ÂëXs×ø±ê¸ß°ËÎ»
+  DWINSend_Buff[DwinSend_Buff_Size -9]=SC%2<<7|LM%2<<6|IconID;      //äºŒç»´ç Xsåæ ‡é«˜å…«ä½
 	
 	DWINSend_Buff[DwinSend_Buff_Size -8]=Icon_lib;
 	DWINSend_Buff[DwinSend_Buff_Size -7]=Icon_IDs;
@@ -594,23 +594,23 @@ void DWINLCD_ICOplay(uint16_t Xs, uint16_t Ys,uint8_t SC,uint8_t LM,uint8_t Icon
 	
 	 DWINSend_Buff[DwinSend_Buff_Size -5]=Delay_time;
 	
-	Send_Data(DWINSend_Buff);                             //·¢ËÍÊı¾İ
+	Send_Data(DWINSend_Buff);                             //å‘é€æ•°æ®
 }
-//____________________________ICOÍ¼±ê¶¯»­×Ô¶¯ÏÔÊ¾Ö¸Áî¿ØÖÆ________________________________
-//Cartoon_Set£ºICON ¶¯»­Ö¸Áî¿ª¹Ø¿ØÖÆ£»
-//on_off:  Ã¿¸ö bit ¶ÔÓ¦Ò»×éÖ¸Áî£¬1=¿ªÆôon£¬0=¹Ø±Õoff£»
-//.15 ¶ÔÓ¦µÚ 15 ×é¶¯»­Ö¸Áî£¬ .0 ¶ÔÓ¦µÚ 0 ×é¶¯»­Ö¸Áî¡£
-//¾ÙÀı£ºAA 29 00 05 CC 33 C3 3C ¿ªÆôµÚ 0 ×é¡¢µÚ 2 ×é¶¯»­Ö¸Áî¡£
-void DWINLCD_Cartoon_Set(uint8_t Cartoon_Set,uint8_t on_off)	     //ICOÍ¼±ê¶¯»­play
+//____________________________ICOå›¾æ ‡åŠ¨ç”»è‡ªåŠ¨æ˜¾ç¤ºæŒ‡ä»¤æ§åˆ¶________________________________
+//Cartoon_Setï¼šICON åŠ¨ç”»æŒ‡ä»¤å¼€å…³æ§åˆ¶ï¼›
+//on_off:  æ¯ä¸ª bit å¯¹åº”ä¸€ç»„æŒ‡ä»¤ï¼Œ1=å¼€å¯onï¼Œ0=å…³é—­offï¼›
+//.15 å¯¹åº”ç¬¬ 15 ç»„åŠ¨ç”»æŒ‡ä»¤ï¼Œ .0 å¯¹åº”ç¬¬ 0 ç»„åŠ¨ç”»æŒ‡ä»¤ã€‚
+//ä¸¾ä¾‹ï¼šAA 29 00 05 CC 33 C3 3C å¼€å¯ç¬¬ 0 ç»„ã€ç¬¬ 2 ç»„åŠ¨ç”»æŒ‡ä»¤ã€‚
+void DWINLCD_Cartoon_Set(uint8_t Cartoon_Set,uint8_t on_off)	     //ICOå›¾æ ‡åŠ¨ç”»play
 {
 	
-	DwinSend_Buff_Size=8;                                //Ö¸ÁîÊı¾İ³¤¶ÈÎª8£¨Ö¡Í·+Ö¸Áî+Mode+Êı¾İ+Ö¡Î²£©	
-	Data_init();                                         //ÖØĞÂ¸üĞÂÊı×é
+	DwinSend_Buff_Size=8;                                //æŒ‡ä»¤æ•°æ®é•¿åº¦ä¸º8ï¼ˆå¸§å¤´+æŒ‡ä»¤+Mode+æ•°æ®+å¸§å°¾ï¼‰	
+	Data_init();                                         //é‡æ–°æ›´æ–°æ•°ç»„
 		
-	DWINSend_Buff[DwinSend_Buff_Size -7]=0x29;            //ICOÍ¼±ê¶¯»­×Ô¶¯ÏÔÊ¾Ö¸Áî¿ØÖÆ
+	DWINSend_Buff[DwinSend_Buff_Size -7]=0x29;            //ICOå›¾æ ‡åŠ¨ç”»è‡ªåŠ¨æ˜¾ç¤ºæŒ‡ä»¤æ§åˆ¶
 	
-	DWINSend_Buff[DwinSend_Buff_Size -6]=(on_off<<(Cartoon_Set-1))>>8;           //ICO_Xs×ø±ê¸ß°ËÎ»
-	DWINSend_Buff[DwinSend_Buff_Size -5]=(on_off<<(Cartoon_Set-1))&0xFF;         //ICO_Xs×ø±êµÍ°ËÎ»
+	DWINSend_Buff[DwinSend_Buff_Size -6]=(on_off<<(Cartoon_Set-1))>>8;           //ICO_Xsåæ ‡é«˜å…«ä½
+	DWINSend_Buff[DwinSend_Buff_Size -5]=(on_off<<(Cartoon_Set-1))&0xFF;         //ICO_Xsåæ ‡ä½å…«ä½
   	
-	Send_Data(DWINSend_Buff);                             //·¢ËÍÊı¾İ
+	Send_Data(DWINSend_Buff);                             //å‘é€æ•°æ®
 }
