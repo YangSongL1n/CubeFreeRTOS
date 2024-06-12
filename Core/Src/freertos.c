@@ -57,37 +57,43 @@ typedef struct {
 /* USER CODE BEGIN Variables */
 
 /* USER CODE END Variables */
-osThreadId TaskHandle;
-osThreadId LCDHandle;
-osThreadId AdcTaskHandle;
-osMessageQId myQueue01Handle;
+/* Definitions for Task */
+osThreadId_t TaskHandle;
+const osThreadAttr_t Task_attributes = {
+  .name = "Task",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
+/* Definitions for LCD */
+osThreadId_t LCDHandle;
+const osThreadAttr_t LCD_attributes = {
+  .name = "LCD",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
+/* Definitions for AdcTask */
+osThreadId_t AdcTaskHandle;
+const osThreadAttr_t AdcTask_attributes = {
+  .name = "AdcTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
+/* Definitions for myQueue01 */
+osMessageQueueId_t myQueue01Handle;
+const osMessageQueueAttr_t myQueue01_attributes = {
+  .name = "myQueue01"
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 
 /* USER CODE END FunctionPrototypes */
 
-void StartTask(void const * argument);
-void LCDTask(void const * argument);
-void StartAdc03(void const * argument);
+void StartTask(void *argument);
+void LCDTask(void *argument);
+void StartAdc03(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
-
-/* GetIdleTaskMemory prototype (linked to static allocation support) */
-void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize );
-
-/* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
-static StaticTask_t xIdleTaskTCBBuffer;
-static StackType_t xIdleStack[configMINIMAL_STACK_SIZE];
-
-void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize )
-{
-  *ppxIdleTaskTCBBuffer = &xIdleTaskTCBBuffer;
-  *ppxIdleTaskStackBuffer = &xIdleStack[0];
-  *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
-  /* place for user code */
-}
-/* USER CODE END GET_IDLE_TASK_MEMORY */
 
 /**
   * @brief  FreeRTOS initialization
@@ -112,30 +118,30 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_TIMERS */
 
   /* Create the queue(s) */
-  /* definition and creation of myQueue01 */
-  osMessageQDef(myQueue01, 16, uint16_t);
-  myQueue01Handle = osMessageCreate(osMessageQ(myQueue01), NULL);
+  /* creation of myQueue01 */
+  myQueue01Handle = osMessageQueueNew (16, sizeof(uint16_t), &myQueue01_attributes);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* definition and creation of Task */
-  osThreadDef(Task, StartTask, osPriorityNormal, 0, 128);
-  TaskHandle = osThreadCreate(osThread(Task), NULL);
+  /* creation of Task */
+  TaskHandle = osThreadNew(StartTask, NULL, &Task_attributes);
 
-  /* definition and creation of LCD */
-  osThreadDef(LCD, LCDTask, osPriorityLow, 0, 256);
-  LCDHandle = osThreadCreate(osThread(LCD), NULL);
+  /* creation of LCD */
+  LCDHandle = osThreadNew(LCDTask, NULL, &LCD_attributes);
 
-  /* definition and creation of AdcTask */
-  osThreadDef(AdcTask, StartAdc03, osPriorityLow, 0, 128);
-  AdcTaskHandle = osThreadCreate(osThread(AdcTask), NULL);
+  /* creation of AdcTask */
+  AdcTaskHandle = osThreadNew(StartAdc03, NULL, &AdcTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
+
+  /* USER CODE BEGIN RTOS_EVENTS */
+  /* add events, ... */
+  /* USER CODE END RTOS_EVENTS */
 
 }
 
@@ -146,7 +152,7 @@ void MX_FREERTOS_Init(void) {
   * @retval None
   */
 /* USER CODE END Header_StartTask */
-void StartTask(void const * argument)
+void StartTask(void *argument)
 {
   /* USER CODE BEGIN StartTask */
 
@@ -166,7 +172,7 @@ void StartTask(void const * argument)
 * @retval None
 */
 /* USER CODE END Header_LCDTask */
-void LCDTask(void const * argument)
+void LCDTask(void *argument)
 {
   /* USER CODE BEGIN LCDTask */
   DWINLCD_Init(USART3);
@@ -218,7 +224,7 @@ void LCDTask(void const * argument)
 * @retval None
 */
 /* USER CODE END Header_StartAdc03 */
-void StartAdc03(void const * argument)
+void StartAdc03(void *argument)
 {
   /* USER CODE BEGIN StartAdc03 */
   
