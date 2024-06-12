@@ -93,6 +93,9 @@ void DWINLCD_Cartoon_Set(uint8_t Cartoon_Set,uint8_t on_off);     //ICO图标动
 void DWINLCD_Draw_Circle(uint16_t Color,uint16_t x0,uint16_t y0,uint8_t r);		  //画圆
 void DWINLCD_CircleFill(uint16_t FColor,uint16_t x0,uint16_t y0,uint8_t r);			//圆型填充
 
-						  		 
+
+ 
+
+
 #endif
 

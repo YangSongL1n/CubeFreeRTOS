@@ -32,15 +32,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-typedef enum{
-  Sta1=0,
-  Sta2,
-  Sta3
-} My_State;
-typedef struct {
-  uint16_t cp_vol;
-  My_State cp_sta;
-} My_St;
+#include "global.h"
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -57,43 +49,37 @@ typedef struct {
 /* USER CODE BEGIN Variables */
 
 /* USER CODE END Variables */
-/* Definitions for Task */
-osThreadId_t TaskHandle;
-const osThreadAttr_t Task_attributes = {
-  .name = "Task",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
-/* Definitions for LCD */
-osThreadId_t LCDHandle;
-const osThreadAttr_t LCD_attributes = {
-  .name = "LCD",
-  .stack_size = 256 * 4,
-  .priority = (osPriority_t) osPriorityLow,
-};
-/* Definitions for AdcTask */
-osThreadId_t AdcTaskHandle;
-const osThreadAttr_t AdcTask_attributes = {
-  .name = "AdcTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow,
-};
-/* Definitions for myQueue01 */
-osMessageQueueId_t myQueue01Handle;
-const osMessageQueueAttr_t myQueue01_attributes = {
-  .name = "myQueue01"
-};
+osThreadId TaskHandle;
+osThreadId LCDHandle;
+osThreadId AdcTaskHandle;
+osMessageQId myQueue01Handle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 
 /* USER CODE END FunctionPrototypes */
 
-void StartTask(void *argument);
-void LCDTask(void *argument);
-void StartAdc03(void *argument);
+void StartTask(void const * argument);
+void LCDTask(void const * argument);
+void StartAdc03(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
+
+/* GetIdleTaskMemory prototype (linked to static allocation support) */
+void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize );
+
+/* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
+static StaticTask_t xIdleTaskTCBBuffer;
+static StackType_t xIdleStack[configMINIMAL_STACK_SIZE];
+
+void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize )
+{
+  *ppxIdleTaskTCBBuffer = &xIdleTaskTCBBuffer;
+  *ppxIdleTaskStackBuffer = &xIdleStack[0];
+  *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
+  /* place for user code */
+}
+/* USER CODE END GET_IDLE_TASK_MEMORY */
 
 /**
   * @brief  FreeRTOS initialization
@@ -118,30 +104,30 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_TIMERS */
 
   /* Create the queue(s) */
-  /* creation of myQueue01 */
-  myQueue01Handle = osMessageQueueNew (16, sizeof(uint16_t), &myQueue01_attributes);
+  /* definition and creation of myQueue01 */
+  osMessageQDef(myQueue01, 16, LCD_Data_t);
+  myQueue01Handle = osMessageCreate(osMessageQ(myQueue01), NULL);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* creation of Task */
-  TaskHandle = osThreadNew(StartTask, NULL, &Task_attributes);
+  /* definition and creation of Task */
+  osThreadDef(Task, StartTask, osPriorityNormal, 0, 128);
+  TaskHandle = osThreadCreate(osThread(Task), NULL);
 
-  /* creation of LCD */
-  LCDHandle = osThreadNew(LCDTask, NULL, &LCD_attributes);
+  /* definition and creation of LCD */
+  osThreadDef(LCD, LCDTask, osPriorityLow, 0, 256);
+  LCDHandle = osThreadCreate(osThread(LCD), NULL);
 
-  /* creation of AdcTask */
-  AdcTaskHandle = osThreadNew(StartAdc03, NULL, &AdcTask_attributes);
+  /* definition and creation of AdcTask */
+  osThreadDef(AdcTask, StartAdc03, osPriorityLow, 0, 128);
+  AdcTaskHandle = osThreadCreate(osThread(AdcTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
-
-  /* USER CODE BEGIN RTOS_EVENTS */
-  /* add events, ... */
-  /* USER CODE END RTOS_EVENTS */
 
 }
 
@@ -152,7 +138,7 @@ void MX_FREERTOS_Init(void) {
   * @retval None
   */
 /* USER CODE END Header_StartTask */
-void StartTask(void *argument)
+void StartTask(void const * argument)
 {
   /* USER CODE BEGIN StartTask */
 
@@ -172,47 +158,26 @@ void StartTask(void *argument)
 * @retval None
 */
 /* USER CODE END Header_LCDTask */
-void LCDTask(void *argument)
+void LCDTask(void const * argument)
 {
   /* USER CODE BEGIN LCDTask */
   DWINLCD_Init(USART3);
   DWINLCD_Clear(White);
 	DWINLCD_ShowXChar(1, 1, A64, Black, White, 30, 50, "Vol:");
-  osEvent event;
+  
   /* Infinite loop */
   for(;;)
   {
   // DWINLCD_ShowXChar(1, 1, 0x05, Black, White, 30, 210, "hello");
-  event=osMessageGet(myQueue01Handle,osWaitForever);
-	My_St *re;	
-	if(osEventMessage==event.status)
-	{ 
-    re=event.value.p;
-    osThreadSuspendAll();
-    printf("sta:%d\r\n",re->cp_sta);
-    printf("%d\r\n",re->cp_vol);
-    DWINLCD_ShowXNum(1, 1, 1, 0, A64, Black, White, 1, 3, 125,50,re->cp_vol);
-    osThreadResumeAll();
-    // switch (pData->cp_ad_status)
-    // {
-    // case H_AD_STATUS_0:
-    //   printf("H_AD_STATUS_0\r\n");
-    //   break;
-    // case H_AD_STATUS_9:
-    //   printf("H_AD_STATUS_9\r\n");
-    //   break;
-
-    // default:
-    //   break;
-    // }
-	}
-	else
-	{
-		printf("error:0x%d\n",event.status);
-	}
-
- 
-  // osDelay(1000);
+  BaseType_t ret;
+  LCD_Data_t data;
+  ret=xQueueReceive(myQueue01Handle,&data,portMAX_DELAY);
+  if(ret=pdTRUE){
+    printf("sta:%d\r\n",data.stpe);
+    printf("%d\r\n",data.disp_vol);
+    DWINLCD_ShowXNum(1, 1, 1, 0, A64, Black, White, 1, 3, 125,50,data.disp_vol);
+  }
+  osDelay(1);
   }
   /* USER CODE END LCDTask */
 }
@@ -224,29 +189,33 @@ void LCDTask(void *argument)
 * @retval None
 */
 /* USER CODE END Header_StartAdc03 */
-void StartAdc03(void *argument)
+void StartAdc03(void const * argument)
 {
   /* USER CODE BEGIN StartAdc03 */
   
   HAL_ADCEx_Calibration_Start(&hadc1);    //ADC内部校准
   HAL_ADC_Start(&hadc1);                  //ADC开启转换
-  osEvent xReturn;
+
   uint16_t ADC_V =0;
 
   /* Infinite loop */
   for(;;)
   {
+    LCD_Data_t data;
     uint16_t ADC_num = HAL_ADC_GetValue(&hadc1);    //获取ADC端口数据
-    My_St adc_st;
     ADC_V = 3300*ADC_num/4096;  
-    adc_st.cp_vol=ADC_V;
-    adc_st.cp_sta=Sta3;
-    xReturn.status=osMessagePut(myQueue01Handle,(uint32_t)&adc_st,0);	
+   data.disp_vol=ADC_V;
+   data.stpe = Sta2;
+    xQueueSend(myQueue01Handle,&data,0);
+  
+    // adc_st.cp_vol=ADC_V;
+    // adc_st.cp_sta=Sta3;
+
 		// if(osOK!=xReturn.status)
 		// {
 		// 	printf("adc send fail\n");
 		// }
-  
+   osDelay(1);
   }
   /* USER CODE END StartAdc03 */
 }
